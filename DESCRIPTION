@@ -1,0 +1,11 @@
+Package: reddPrec
+Type: Package
+Title: Reconstruction of Daily Data  - Precipitation
+Version: 0.2
+Date: 2016-02-23
+Author: Roberto Serrano-Notivoli
+Maintainer: Roberto Serrano-Notivoli <rs@unizar.es>
+Description: Computes quality control to daily precipitation datasets, reconstructs the original series by estimating precipitation in missing values, creates new series in a specified pair of coordinates and creates grids.
+License: GPL (>=3)
+LazyData: yes
+Depends: snowfall

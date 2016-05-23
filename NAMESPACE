@@ -1,0 +1,5 @@
+exportPattern("^[[:alpha:]]+")
+import(snowfall)
+importFrom("stats", "aggregate", "binomial", "dist", "glm", "predict",
+             "quasibinomial")
+importFrom("utils", "read.table", "write.table")

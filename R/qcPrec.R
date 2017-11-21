@@ -7,8 +7,11 @@ qcPrec <- function(prec,sts,inidate,enddate,parallel=TRUE,ncpu=2,printmeta=TRUE,
   ids=colnames(prec) #station names
 
   #matrix of distances
-  distanc=dist(cbind(sts$X,sts$Y))/1000; distanc=as.matrix(distanc)
-  colnames(distanc)=sts$ID; rownames(distanc)=sts$ID
+  x1 <- cbind(sts$X,sts$Y)
+  x2 <-  x1
+  distanc <- rdist( x1,x2)/1000
+  colnames(distanc) = sts$ID
+  rownames(distanc) = sts$ID
 
   #vector of dates
   datess=seq.Date(inidate,enddate,by='day')
@@ -35,7 +38,7 @@ qcPrec <- function(prec,sts,inidate,enddate,parallel=TRUE,ncpu=2,printmeta=TRUE,
 
           #Now the work is by station, to that day
           for(h in 1:nrow(clean)){
-            can=clean$obs[h]
+            can=as.numeric(clean$obs[h])
             if(is.na(can)) next else{
               #neighbours
               kk=data.frame(ID=rownames(distanc),D=distanc[,which(clean$ID[h]==colnames(distanc))],
@@ -123,7 +126,7 @@ qcPrec <- function(prec,sts,inidate,enddate,parallel=TRUE,ncpu=2,printmeta=TRUE,
   qcLast <-function(x,datess,prec,ori,distanc,sts,printmeta=printmeta,thres){
     dw=which(x==datess)
     d=prec[dw,1:(ncol(prec)-1)]
-    oris=ori[dw,]#original data
+    oris=as.numeric(ori[dw,])#original data
     if(sum(is.na(oris))==length(d)){
       print(paste('No data on day',x))
     } else{

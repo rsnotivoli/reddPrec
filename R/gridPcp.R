@@ -2,15 +2,18 @@
 
 gridPcp <- function(filled,points,sts,inidate,enddate,parallel=TRUE,ncpu=2){
 
+  ddsts = rbind(sts, points)
   #matrix of distances
-  ddsts=rbind(sts,points)
-  distanc=dist(cbind(ddsts$X,ddsts$Y))/1000; distanc=as.matrix(distanc); colnames(distanc)=ddsts$ID; rownames(distanc)=ddsts$ID
+  x1<- cbind(ddsts$X,ddsts$Y)
+  x2<-  x1
+  distanc <- rdist( x1,x2)/1000
+  colnames(distanc)=ddsts$ID; rownames(distanc)=ddsts$ID
 
-  w= match(sts$ID,colnames(distanc))
-  distanc=distanc[,-c(w)]
-
-  w= match(points$ID,rownames(distanc))
-  distanc=distanc[-c(w),]
+  w = match(sts$ID, colnames(distanc))
+  distanc = distanc[, -c(w)]
+  w = match(points$ID, rownames(distanc))
+  distanc = distanc[-c(w), ]
+  gc(verbose=F)
 
   #vector of dates
   datess=seq.Date(inidate,enddate,by='day')
@@ -88,6 +91,6 @@ gridPcp <- function(filled,points,sts,inidate,enddate,parallel=TRUE,ncpu=2){
   } else {
     lapply(datess,FUN=predday,filled=filled,datess=datess,distanc=distanc,points=points,sts=sts)
   }
-  gc()
+  gc(verbose=F)
   sfStop()
 }

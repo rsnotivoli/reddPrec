@@ -1,5 +1,6 @@
 exportPattern("^[[:alpha:]]+")
 import(snowfall)
+import(fields)
 importFrom("stats", "aggregate", "binomial", "dist", "glm", "predict",
              "quasibinomial")
 importFrom("utils", "read.table", "write.table")

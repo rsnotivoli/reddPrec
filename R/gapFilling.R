@@ -3,7 +3,9 @@
 gapFilling <- function(prec,sts,inidate,enddate,parallel=TRUE,ncpu=2,thres=NA){
 
   #matrix of distances
-  distanc=dist(cbind(sts$X,sts$Y))/1000; distanc=as.matrix(distanc)
+  x1<- cbind(sts$X,sts$Y)
+  x2<-  x1
+  distanc <- rdist( x1,x2)/1000
   colnames(distanc)=sts$ID; rownames(distanc)=sts$ID
 
   #vector of dates
@@ -15,8 +17,6 @@ gapFilling <- function(prec,sts,inidate,enddate,parallel=TRUE,ncpu=2,thres=NA){
     d=prec[dw,]
     if(sum(is.na(d))==length(d)){
       print(paste('No data on day',x))
-      pred=data.frame(matrix(NA,ncol=7,nrow=length(d))); pred[,1] <- names(d)
-      names(pred)=c('ID','obs','predb','pred1','pred2','pred3','err')
     } else{
       pred=data.frame(matrix(NA,ncol=7,nrow=length(d))); pred[,1] <- names(d)
       names(pred)=c('ID','obs','predb','pred1','pred2','pred3','err')
@@ -112,35 +112,33 @@ gapFilling <- function(prec,sts,inidate,enddate,parallel=TRUE,ncpu=2,thres=NA){
   print('Standardization')
 
   #monthly standardization
-  mon1=substr(datess,1,7); mon2=substr(datess,6,7)
-  for(i in 1:ncol(obs)){
-    k=aggregate(obs[,i],by=list(mon1),FUN='sum',na.rm=T)
-    o=aggregate(k[,2],by=list(substr(k[,1],6,7)),FUN='mean',na.rm=T)
-    pp=pred[,i];pp[which(is.na(obs[,i]))]=NA
-    k=aggregate(pp,by=list(mon1),FUN='sum',na.rm=T)
-    p=aggregate(k[,2],by=list(substr(k[,1],6,7)),FUN='mean',na.rm=T)
-    f=p[,2]/o[,2] #correction factors by months
-    m=c('01','02','03','04','05','06','07','08','09','10')
+  pred3 = pred
+  for (i in 1:ncol(obs)) {
+    print(i)
     for(h in 1:12){
-      w=which(m[h]==mon2)
-      pred[w,i]=pred[w,i]/f[h]
+      w = which(h==as.numeric(substr(datess,6,7)))
+      ww = which(obs[w,i]+pred[w,i] != 0)
+      ww2 = which(obs[w,i]+pred[w,i] == 0)
+      pred3[w,i][ww2] = 0
+      pred3[w,i] = pred[w,i]/((sum(pred[w,i][ww],na.rm=T)+1)/(sum(obs[w,i][ww],na.rm=T)+1))
     }
   }
 
-  print('Writing final files')
-  for(i in 1:length(aa)){
-    d=read.table(paste('./days/',aa[i],sep=''),header=T,sep='\t')
-    d$pred3 <- round(pred[i,],1) #inserting corrected values in files
-    write.table(d,paste('./days/',aa[i],sep=''),quote=F,row.names=F,sep='\t',na='')
+  print("Writing final files")
+  for (i in 1:length(aa)) {
+    d = read.table(paste("./days/", aa[i], sep = ""), header = T,
+                   sep = "\t")
+    d$pred3 <- round(pred3[i, ], 1)
+    write.table(d, paste("./days/", aa[i], sep = ""), quote = F,
+                row.names = F, sep = "\t", na = "")
   }
-
-  #Here we replace missing data in original by predicted and corrected values to each series
-  for(i in 1:ncol(obs)){
-    w=which(is.na(obs[,i]))
-    if(length(w)>0) obs[w,i] <- pred[w,i]
+  for (i in 1:ncol(obs)) {
+    w = which(is.na(obs[, i]))
+    if (length(w) > 0)
+      obs[w, i] <- pred3[w, i]
   }
-
-  filled=obs; rm(obs)
+  filled = obs
+  rm(obs)
   save(filled,file='Filled.RData')
 
 }

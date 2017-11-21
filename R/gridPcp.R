@@ -2,10 +2,9 @@
 
 gridPcp <- function(filled,points,sts,inidate,enddate,parallel=TRUE,ncpu=2){
 
-  ddsts = rbind(sts, points)
   #matrix of distances
-  x1<- cbind(ddsts$X,ddsts$Y)
-  x2<-  x1
+  x1<- cbind(sts$X,sts$Y)
+  x2<-  cbind(points$X,points$Y)
   distanc <- rdist( x1,x2)/1000
   colnames(distanc)=ddsts$ID; rownames(distanc)=ddsts$ID
 
@@ -36,7 +35,6 @@ gridPcp <- function(filled,points,sts,inidate,enddate,parallel=TRUE,ncpu=2){
       #point by point
       for(h in 1:nrow(predpoint)){
         kk=data.frame(ID=rownames(distanc),D=distanc[,which(predpoint$ID[h]==colnames(distanc))],
-                      #obs=pred$obs[unlist(lapply(rownames(distanc),FUN=w.nam,y=pred$ID))],
                       obs=pred$obs[match(pred$ID,rownames(distanc))],
                       stringsAsFactors=F)
         kk=kk[order(kk$D),]

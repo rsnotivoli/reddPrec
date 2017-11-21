@@ -7,8 +7,7 @@ Daily precipitation reconstruction. Makes predictions to all days and locations.
 This function uses original data to estimate new predicted values in each location and day.
 }
 \usage{
-gapFilling(prec, sts, inidate, enddate, parallel = TRUE,
-          ncpu = 2, thres = NA)
+gapFilling(prec, sts, inidate, enddate, parallel = TRUE, ncpu = 2, thres = NA)
 }
 \arguments{
   \item{prec}{

@@ -1,14 +1,15 @@
-citHeader("To cite reports in publications, please use:")
+citHeader("To cite reddPrec in publications, please use:")
 
 
-citEntry(entry = "misc",
-    title = "{reddPrec}: {P}ackage to daily precipitation reconstruction",
-    author = "Roberto Serrano-Notivoli",
-    organization = "University of Zaragoza",
-    year = "2016",
-    note = "Funded by Spanish Government: Project CGL2012-31668",
-    textVersion  = paste("Serrano-Notivoli, R. (2016).",
-        "reddPrec: Package to daily precipitation reconstruction.",
-        "version 0.1.0. University of Zaragoza. Spain.",
-        "Funded by Spanish Government - Project CGL2012-31668")
-)
+citEntry(entry = "Article",
+    title = "An R package for daily precipitation climate series reconstruction",
+    author = personList(as.person("Roberto Serrano-Notivoli"),
+        as.person("Martin de Luis"),as.person("Santiago Begueria")),
+    journal = "Environmental Modelling and Software",
+    year = 2017,
+    volume = 89,
+    url = "http://dx.doi.org/10.1016/j.envsoft.2016.11.005",
+    textVersion  = paste("Serrano-Notivoli, R., de Luis, M., Begueria, S. (2017).",
+        "An R package for daily precipitation climate series reconstruction",
+        "Environmental Modelling and Software, 89:190--195",
+        "URL http://dx.doi.org/10.1016/j.envsoft.2016.11.005"))

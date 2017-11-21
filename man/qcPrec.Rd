@@ -7,8 +7,8 @@ Quality control: Identifies and removes suspect data from the original dataset
 This function uses original data to estimate new predicted values and compare them with observations. If exist large differences, removes the original values.
 }
 \usage{
-qcPrec(prec, sts, inidate, enddate, parallel = TRUE,
-      ncpu = 2, printmeta = TRUE, thres = NA)
+qcPrec(prec, sts, inidate, enddate, parallel = TRUE, ncpu = 2,
+printmeta = TRUE, thres = NA)
 }
 \arguments{
   \item{prec}{

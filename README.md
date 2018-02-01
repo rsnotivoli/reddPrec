@@ -15,6 +15,7 @@ Serrano-Notivoli, R., De Luis, M., Saz, M.A. and Beguería, S. 2017. Spatially-b
 **1.5** 
 * Added functions for observations-estimates comparison, with validation purposes
 * Improved the speed of gridding process (now in two steps: destance calculation and gridding)
+* New dependencies: hydroGOF (for scores calculation)
 
 ## Pending tasks
 * Add functions to plot the results of the QC process

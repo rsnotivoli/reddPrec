@@ -1,7 +1,7 @@
 Package: reddPrec
 Type: Package
 Title: Reconstruction of Daily Data - Precipitation
-Version: 0.5.0
+Version: 1.5.0
 Author: Roberto Serrano-Notivoli
 Maintainer: Roberto Serrano-Notivoli <rs@unizar.es>
 Description: Computes quality control for daily precipitation datasets, 

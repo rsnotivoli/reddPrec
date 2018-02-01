@@ -12,10 +12,14 @@ Serrano-Notivoli, R., De Luis, M., Saz, M.A. and Beguería, S. 2017. Spatially-b
 
 ## Version history
 
-**1.5** 
+**0.5 - [in progress]**
 * Added functions for observations-estimates comparison, with validation purposes
 * Improved the speed of gridding process (now in two steps: destance calculation and gridding)
 * New dependencies: *hydroGOF* (for scores calculation)
+
+**0.4 - 2017-10**
+* Improved the speed in gapFilling function
+* Fixed minor issues with rounded decimals
 
 ## Pending tasks
 * Add functions to plot the results of the QC process

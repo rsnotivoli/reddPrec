@@ -23,6 +23,8 @@ Serrano-Notivoli, R., De Luis, M., Saz, M.A. and Beguería, S. 2017. Spatially-b
 
 ## Pending tasks
 * Add functions to plot the results of the QC process
+* Add functionality to read, manage and write NetCDF files
+* Add functionality to work by chunks (handle Big Data files)
 
 ## Issues and improvements
 Please, address any issue, comment or suggestion in the [issues section](https://github.com/rsnotivoli/reddPrec/issues)

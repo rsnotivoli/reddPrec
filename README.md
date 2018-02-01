@@ -12,7 +12,7 @@ Serrano-Notivoli, R., De Luis, M., Saz, M.A. and Beguería, S. 2017. Spatially-b
 
 ## Version history
 
-**0.5** 
+**1.5** 
 * Added functions for observations-estimates comparison, with validation purposes
 * Improved the speed of gridding process (now in two steps: destance calculation and gridding)
 

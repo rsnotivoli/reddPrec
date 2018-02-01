@@ -10,10 +10,14 @@ A detailed description of the methodology can be found in:
 
 Serrano-Notivoli, R., De Luis, M., Saz, M.A. and Beguería, S. 2017. Spatially-based reconstruction of daily precipitation instrumental data series. *Climate Research* **73**(3): 167-186. [https://doi.org/10.3354/cr01476](https://doi.org/10.3354/cr01476).
 
+## Version history
+
+**0.5** 
+* Added functions for observations-estimates comparison, with validation purposes
+* Improved the speed of gridding process (now in two steps: destance calculation and gridding)
+
 ## Pending tasks
 * Add functions to plot the results of the QC process
-* Add functions for observations-estimates comparison, with validation purposes
-* Improve the speed of gridding process
 
 ## Issues and improvements
 Please, address any issue, comment or suggestion in the [issues section](https://github.com/rsnotivoli/reddPrec/issues)

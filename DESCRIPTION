@@ -1,7 +1,7 @@
 Package: reddPrec
 Type: Package
 Title: Reconstruction of Daily Data - Precipitation
-Version: 0.4.0
+Version: 0.5.0
 Author: Roberto Serrano-Notivoli
 Maintainer: Roberto Serrano-Notivoli <rs@unizar.es>
 Description: Computes quality control for daily precipitation datasets, 
@@ -10,7 +10,7 @@ Description: Computes quality control for daily precipitation datasets,
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-Depends: snowfall, fields
+Depends: snowfall, fields, hydroGOF
 NeedsCompilation: no
 Packaged: 2017-10-05 06:56:33 UTC; rserrano
 Repository: CRAN

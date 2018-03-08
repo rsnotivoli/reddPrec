@@ -14,7 +14,7 @@ Serrano-Notivoli, R., De Luis, M., Saz, M.A. and Beguería, S. 2017. Spatially-b
 
 **0.5 - [in progress]**
 * Added functions for observations-estimates comparison, with validation purposes
-* Improved the speed of gridding process (now in two steps: destance calculation and gridding)
+* Improved the speed of gridding process (now in two steps: distance calculation and gridding)
 * New dependencies: *hydroGOF* (for scores calculation)
 
 **0.4 - 2017-10**
@@ -25,6 +25,7 @@ Serrano-Notivoli, R., De Luis, M., Saz, M.A. and Beguería, S. 2017. Spatially-b
 * Add functions to plot the results of the QC process
 * Add functionality to read, manage and write NetCDF files
 * Add functionality to work by chunks (handle Big Data files)
+* Change distance calculation to work with coordinates in degrees
 
 ## Issues and improvements
 Please, address any issue, comment or suggestion in the [issues section](https://github.com/rsnotivoli/reddPrec/issues)

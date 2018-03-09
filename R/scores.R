@@ -62,11 +62,14 @@ scores <- function(obs, sim, alts, dates){
   
   ##
   pdf('./val/histogram_obs_vs_pred.pdf',height=4,width=9,pointsize=10,useDingbats=F)
-  hist(log10(onum), main = '', xlab = '', freq = F)
+  lo <- log10(onum)
+  lsi <-log10(snum)
+  hist(log10(onum), main = '', xlab = '', freq = F, xlim = c(min(lo, lsi), max(lo, lsi)))
   par(new = T)
   hist(log10(snum), lty = 2, xaxt = 'n',
        yaxt = 'n', main = '', xlab = 'logPcp (mm)', ylab = '',
-       freq = F)
+       freq = F,
+       xlim = c(min(lo, lsi), max(lo, lsi)))
   legend('topleft', lty = c(1,2), legend = c('Observed','Predicted'), 
          bty = 'n')
   dev.off()
@@ -78,17 +81,18 @@ scores <- function(obs, sim, alts, dates){
   print('Computing statistics by altitudes')
   #breaks
   brks <- cut(sts$ALT, alts)
-  print('Computing statistics by altitudes')
   errors <- data.frame(matrix(NA,nrow=length(levels(brks)),ncol=7),stringsAsFactors=F)
-  names(errors) <- c('%OBS','%PRED','MAE','ME','RM','RSD','N'); rownames(errors) <- paste('d',1:10,sep='')
+  names(errors) <- c('%OBS','%PRED','MAE','ME','RM','RSD','N')
   
   no <- sum(onum)
   ns <- sum(snum)
   for(i in 1:length(levels(brks))){
-    o <- as.numeric(obs[,which(levels(brks)[i] == brks)])
-    o <- o[-c(which(is.na(o)))]
-    s <- as.numeric(sim[,which(levels(brks)[i] == brks)])
-    s <- s[-c(which(is.na(s)))]
+    o <- as.numeric(as.matrix(obs[,which(levels(brks)[i] == brks)]))
+    wna <- which(is.na(o))
+    if(length(wna) > 0) o <- o[-c(wna)]
+    s <- as.numeric(as.matrix(sim[,which(levels(brks)[i] == brks)]))
+    wna <- which(is.na(s))
+    if(length(wna) > 0) s <- s[-c(wna)]
     errors[i,1] <- round(sum(o) * 100 / no, 1)
     errors[i,2] <- round(sum(s) * 100 / ns, 1)
     errors[i,3] <- round(mae(s,o),2)
@@ -121,7 +125,7 @@ scores <- function(obs, sim, alts, dates){
   om1=colMeans(obs,na.rm=T)
   pm1=colMeans(sim,na.rm=T)
   smoothScatter(om1,pm1,ylim=c(min(om1,pm1),max(om1,pm1)),xlim=c(min(om1,pm1),max(om1,pm1)),
-                xlab='Observed (mm)',ylab='Grid (mm)',colramp=Lab.palette,nbin=500)
+                xlab='Observed (mm)',ylab='Predicted (mm)',colramp=Lab.palette,nbin=200)
   abline(sd(pm1),1,lty=2,col=colors()[220])
   abline(-sd(pm1),1,lty=2,col=colors()[220])
   legend('bottomright',bty='n',legend=c(paste('Pearson',round(cor(om1,pm1,use="pairwise.complete.obs"),3))))
@@ -142,7 +146,7 @@ scores <- function(obs, sim, alts, dates){
   
   smoothScatter(ome,pme,ylim=c(min(ome,pme,na.rm=T),max(ome,pme,na.rm=T)),
                 xlim=c(min(ome,pme,na.rm=T),max(ome,pme,na.rm=T)),xlab='Observed (mm)',
-                ylab='Predicted (mm)',colramp=Lab.palette,nbin=500)
+                ylab='Predicted (mm)',colramp=Lab.palette,nbin=200)
   abline(sd(pme,na.rm=T),1,lty=2,col=colors()[220])
   abline(-sd(pme,na.rm=T),1,lty=2,col=colors()[220])
   legend('bottomright',bty='n',legend=c(paste('Pearson',round(cor(ome,pme,use="pairwise.complete.obs"),3))))
@@ -151,7 +155,7 @@ scores <- function(obs, sim, alts, dates){
   #95th wet
   smoothScatter(o95,p95,ylim=c(min(o95,p95,na.rm=T),max(o95,p95,na.rm=T)),
                 xlim=c(min(o95,p95,na.rm=T),max(o95,p95,na.rm=T)),xlab='Observed (mm)',
-                ylab='Predicted (mm)',colramp=Lab.palette,nbin=500)
+                ylab='Predicted (mm)',colramp=Lab.palette,nbin=200)
   abline(sd(p95,na.rm=T),1,lty=2,col=colors()[220])
   abline(-sd(p95,na.rm=T),1,lty=2,col=colors()[220])
   legend('bottomright',bty='n',legend=c(paste('Pearson',round(cor(o95,p95,use="pairwise.complete.obs"),3))))
@@ -163,7 +167,7 @@ scores <- function(obs, sim, alts, dates){
   om1=rowMeans(obs,na.rm=T)
   pm1=rowMeans(sim,na.rm=T)
   smoothScatter(om1,pm1,ylim=c(min(om1,pm1),max(om1,pm1)),xlim=c(min(om1,pm1),max(om1,pm1)),
-                xlab='Observed (mm)',ylab='Grid (mm)',colramp=Lab.palette,nbin=500)
+                xlab='Observed (mm)',ylab='Predicted (mm)',colramp=Lab.palette,nbin=200)
   abline(sd(pm1),1,lty=2,col=colors()[220])
   abline(-sd(pm1),1,lty=2,col=colors()[220])
   legend('bottomright',bty='n',legend=c(paste('Pearson',round(cor(om1,pm1,use="pairwise.complete.obs"),3))))
@@ -172,19 +176,20 @@ scores <- function(obs, sim, alts, dates){
   #medians wet
   ome=rep(NA,nrow(obs)); pme=rep(NA,nrow(obs))
   o95=rep(NA,nrow(obs)); p95=rep(NA,nrow(obs))
+  
   for(i in 1:nrow(obs)){
     w=which(obs[i,]>0 & sim[i,]>0)
     if(length(w)>10){
-      ome[i] = median(obs[i,w])
-      pme[i] = median(sim[i,w])
-      o95[i] = quantile(obs[i,w],probs=0.95)
-      p95[i] = quantile(sim[i,w],probs=0.95)
+      ome[i] = median(as.numeric(obs[i,w]))
+      pme[i] = median(as.numeric(sim[i,w]))
+      o95[i] = quantile(as.numeric(obs[i,w]),probs=0.95)
+      p95[i] = quantile(as.numeric(sim[i,w]),probs=0.95)
     } 
   }
   
   smoothScatter(ome,pme,ylim=c(min(ome,pme,na.rm=T),max(ome,pme,na.rm=T)),
                 xlim=c(min(ome,pme,na.rm=T),max(ome,pme,na.rm=T)),xlab='Observed (mm)',
-                ylab='Predicted (mm)',colramp=Lab.palette,nbin=500)
+                ylab='Predicted (mm)',colramp=Lab.palette,nbin=200)
   abline(sd(pme,na.rm=T),1,lty=2,col=colors()[220])
   abline(-sd(pme,na.rm=T),1,lty=2,col=colors()[220])
   legend('bottomright',bty='n',legend=c(paste('Pearson',round(cor(ome,pme,use="pairwise.complete.obs"),3))))
@@ -193,7 +198,7 @@ scores <- function(obs, sim, alts, dates){
   #95th wet
   smoothScatter(o95,p95,ylim=c(min(o95,p95,na.rm=T),max(o95,p95,na.rm=T)),
                 xlim=c(min(o95,p95,na.rm=T),max(o95,p95,na.rm=T)),xlab='Observed (mm)',
-                ylab='Predicted (mm)',colramp=Lab.palette,nbin=500)
+                ylab='Predicted (mm)',colramp=Lab.palette,nbin=200)
   abline(sd(p95,na.rm=T),1,lty=2,col=colors()[220])
   abline(-sd(p95,na.rm=T),1,lty=2,col=colors()[220])
   legend('bottomright',bty='n',legend=c(paste('Pearson',round(cor(o95,p95,use="pairwise.complete.obs"),3))))

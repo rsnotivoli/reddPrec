@@ -12,10 +12,13 @@ Serrano-Notivoli, R., De Luis, M., Saz, M.A. and Beguería, S. 2017. Spatially-b
 
 ## Version history
 
-**0.5 - [in progress]**
+**1.0 - [in progress]**
 * Added functions for observations-estimates comparison, with validation purposes
 * Improved the speed of gridding process (now in two steps: distance calculation and gridding)
-* New dependencies: *hydroGOF* (for scores calculation)
+* Improved the speed of quality control (QC)
+* Now you can set the number of neighbours to use in QC
+* New dependencies: *hydroGOF* (for scores calculation); *multiApply* (parallelization); *future* (multicore)
+* Already not depending on *snowfall*
 
 **0.4 - 2017-10**
 * Improved the speed in gapFilling function

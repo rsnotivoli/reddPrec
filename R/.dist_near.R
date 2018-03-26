@@ -6,7 +6,7 @@
 #' @param y matrix or data.frame with the coordinates of the reference locations (including candidate or not) and their IDs two columns [lat,lon,ID]
 #' @param thres maximum radius where neighbouring stations will be searched
 
-dist_near <- function(x, y, thres){
+.dist_near <- function(x, y, thres){
   
   #convert degrees in radians
   lat <- as.numeric(x[1])*pi/180

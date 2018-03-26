@@ -1,144 +1,90 @@
-#Gap filling function
 
-gapFilling <- function(prec,sts,inidate,enddate,parallel=TRUE,ncpu=2,thres=NA){
+#' This function fills the gaps in original data series of daily precipitation
 
-  #matrix of distances
-  x1<- cbind(sts$X,sts$Y)
-  x2<-  x1
-  distanc <- rdist( x1,x2)/1000
-  colnames(distanc)=sts$ID; rownames(distanc)=sts$ID
+#' @param prec matrix or data.frame containing the original (cleaned) precipitation data. Each column represents one station. The names of columns have to be names of the stations.
+#' @param sts matrix or data.frame containing the stations info. Must have at least four fields: ID: station identifier; ALT: altitude; X: Longitude in UTM projection (meters); and Y: Latitude in UTM projection (meters). Tabulation separated.
+#' @param inidate object of class character in format 'YYYY-mm-dd' defining the first day of quality control process
+#' @param enddate object of class character in format 'YYYY-mm-dd' defining the last day of quality control process
+#' @param ncpu number of processor cores used to parallel computing. It uses all the available cores by default.
+#' @param thres maximum radius where neighbouring stations will be searched
+#' @param neibs integer number of nearest neighbours to use
+#' @param intermediate when TRUE, one file per day will be written in subdirectory ./days with the information about intermediate estimates.
+#' @param validation when TRUE, scores are computed between observed and predicted data and a set of text files and plots will be written in subdirectory ./val.
 
-  #vector of dates
-  datess=seq.Date(inidate,enddate,by='day')
+gapFilling <- function(prec, sts, inidate, enddate, ncpu = 8, thres = NA, neibs = 10,
+                       intermediate = TRUE, validation = TRUE){
 
-  fillData <-function(x,datess,prec,distanc=distanc,sts=sts,thres=thres){
+  m <- match(colnames(prec), sts$ID)
+  if(length(which(is.na(m))) > 0) 
+    stop('Stations ID do not coincide with dataset names')
+  
+  datess <- seq.Date(as.Date(inidate), as.Date(enddate), by = "day")
 
-    dw=which(x==datess)
-    d=prec[dw,]
-    if(sum(is.na(d))==length(d)){
-      print(paste('No data on day',x))
-    } else{
-      pred=data.frame(matrix(NA,ncol=7,nrow=length(d))); pred[,1] <- names(d)
-      names(pred)=c('ID','obs','predb','pred1','pred2','pred3','err')
-      pred$obs=as.numeric(d)
-      if(max(pred$obs,na.rm=T)==0){
-        pred$predb=0
-        pred$pred1=0
-        pred$pred2=0
-        pred$err=0
-      } else{
-        for(h in 1:nrow(pred)){
-          can=pred$obs[h]
-          kk=data.frame(ID=rownames(distanc),D=distanc[,which(pred$ID[h]==colnames(distanc))],
-                        obs=pred$obs[match(pred$ID,rownames(distanc))],
-                        stringsAsFactors=F)
-          kk=kk[order(kk$D),]
-          wna=which(is.na(kk$obs))
-          if(length(wna)>0) kk=kk[-c(wna),]#and removing which have no data
-          kk=kk[-c(1),]
-          if(!is.na(thres)){
-            kk=kk[-c(which(kk$D>thres)),]
-          }
-          if(nrow(kk)<10) {kk=kk; print(paste('Less than 10 nearest observations in day',
-            x,'and station',pred$ID[h]))} else {kk=kk[1:10,]
-              if(max(kk$obs,na.rm=T)==0){
-                pred$predb[h]=0
-                pred$pred1[h]=0
-                pred$pred2[h]=0
-                pred$err[h]=0
-              } else{
-                  sts_can <- sts[which(pred$ID[h]==sts$ID),]
-                  sts_nns <- sts[match(kk$ID,sts$ID),]
-                  #binomial
-                  b <- kk$obs; b[b>0]=1
-                  DF <- data.frame(y=b,alt=sts_nns$ALT,lat=sts_nns$Y,lon=sts_nns$X)
-                  fmtb <- suppressWarnings(glm(y~alt+lat+lon, data=DF, family=binomial()))
-                  newdata=data.frame(alt=sts_can$ALT,lat=sts_can$Y,lon=sts_can$X)
-                  pb <- predict(fmtb,newdata=newdata,type='response')
-                  if(pb<0.001 & pb>0) pb <- 0.001
-                  pb <- round(pb,3)
-
-                  #data
-                  mini=min(kk$obs)/2
-                  maxi=max(kk$obs)+(max(kk$obs)-min(kk$obs))
-                  yr=as.numeric((kk$obs-mini)/(maxi-mini))
-                  DF$y=yr
-                  fmt <- suppressWarnings(glm(y~alt+lat+lon, data=DF, family=quasibinomial()))
-                  p <- predict(fmt,newdata=newdata,type='response')
-                  if(p<0.001 & p>0) p <- 0.001
-                  p <- round((p*(maxi-mini))+mini,3)
-
-                  err <- sqrt(sum((DF$y-predict(fmt,type='response'))^2)/(length(DF$y)-3))#introduces standard error
-                  if(err<0.001 & err>0) err <- 0.001
-                  err <- round((err*maxi)+mini,3)
-                  #asign data
-                  pred$predb[h]=pb
-                  pred$pred1[h]=p
-                  pred$pred2[h]=p
-                  if(pb<0.5) pred$pred2[h]=0
-                  pred$err[h]=err
-                  if(pred$predb[h]>=0.5 & pred$pred2[h]<1) pred$pred2[h]=1
-                }#next pred calculation
-              }
-        }#next station
-      }
-    }
-    dir.create('./days/',showWarnings = F)
-    write.table(pred,paste('./days/',x,'.txt',sep=''),quote=F,row.names=F,sep='\t',na='')
-  }
-  #RUN gapFilling
-  if(parallel){
-    sfInit(parallel=T,cpus=ncpu)
-  }
-  if(parallel){
-    print('Creating daily files')
-    d=sfLapply(datess,fun=fillData,datess=datess,prec=prec,distanc=distanc,sts=sts,thres=thres)
-  } else {
-    d=lapply(datess,FUN=fillData,datess=datess,prec=prec,distanc=distanc,sts=sts,thres=thres)
-  }
-  gc()
-  sfStop()
-
-  #read predicted and standardization
-  print('Re-reading data')
-  aa=list.files('./days/')
-  pred=matrix(NA,ncol=nrow(sts),nrow=length(datess)); colnames(pred)=sts$ID
-  obs=pred
-  for(i in 1:length(aa)){
-    d=read.table(paste('./days/',aa[i],sep=''),header=T,sep='\t')
-    obs[i,] <- d$obs
-    pred[i,] <- d$pred2
-  }
-  print('Standardization')
-
+  #order stations like the columns in dataset
+  sts <- sts[m,]
+  
+  print(paste0('[',Sys.time(),'] -', " Computing distances"))
+  #creates a distance matrix with the names of sorted neighbours
+  distanc <- t(Apply(as.matrix(sts[,c('LAT','LON')]), 
+                     margins = 1, 
+                     AtomicFun = '.dist_near', 
+                     y = sts[,c('LAT','LON','ID')], 
+                     thres = thres,
+                     ncores = ncpu)[[1]])
+  rownames(distanc) <- sts$ID
+  
+  print(paste0('[',Sys.time(),'] -', " Filling gaps"))
+  pred <- t(Apply(list(as.matrix(prec), as.matrix(1:length(datess))),
+                  margins = 1, AtomicFun = '.fillData', 
+                  distanc = distanc, sts = sts, datess = datess, 
+                  neibs = neibs, intermediate = intermediate, 
+                  ncores = ncpu)[[1]])
+  
+  print(paste0('[',Sys.time(),'] -', " Standardizing final data series"))
   #monthly standardization
-  pred3 = pred
-  for (i in 1:ncol(obs)) {
-    print(i)
+  pred3 <- pred
+  colnames(pred3) <- colnames(prec)
+  for (i in 1:ncol(prec)) {
     for(h in 1:12){
-      w = which(h==as.numeric(substr(datess,6,7)))
-      ww = which(obs[w,i]+pred[w,i] != 0)
-      ww2 = which(obs[w,i]+pred[w,i] == 0)
-      pred3[w,i][ww2] = 0
-      pred3[w,i] = pred[w,i]/((sum(pred[w,i][ww],na.rm=T)+1)/(sum(obs[w,i][ww],na.rm=T)+1))
+      w <- which(h == as.numeric(substr(datess, 6, 7)))
+      ww <- which(prec[w,i] + pred[w,i] != 0)
+      ww2 <- which(prec[w,i] + pred[w,i] == 0)
+      pred3[w,i][ww2] <- 0
+      pred3[w,i] <- pred[w,i] / 
+        ((sum(pred[w,i][ww], na.rm = T) + 1) / 
+           (sum(prec[w,i][ww], na.rm = T) + 1))
     }
   }
-
-  print("Writing final files")
-  for (i in 1:length(aa)) {
-    d = read.table(paste("./days/", aa[i], sep = ""), header = T,
-                   sep = "\t")
-    d$pred3 <- round(pred3[i, ], 1)
-    write.table(d, paste("./days/", aa[i], sep = ""), quote = F,
-                row.names = F, sep = "\t", na = "")
+  
+  if(intermediate){
+    print(paste0('[',Sys.time(),'] -', " Writing files"))
+    aa <- list.files('./days/', full.names = TRUE)
+    for (i in 1:length(aa)) {
+      d = read.table(aa[i], header = T, sep = "\t")
+      d$final_pred <- round(pred3[i, ], 1)
+      write.table(d, aa[i], quote = F, row.names = F, sep = "\t", na = "")
+    }
   }
-  for (i in 1:ncol(obs)) {
-    w = which(is.na(obs[, i]))
+  
+  
+  if(validation){
+  p3 <- pred3
+  print(paste0('[',Sys.time(),'] -', " Computing scores"))
+    for(i in 1:ncol(prec)){p3[which(is.na(prec[,i])),i] <- NA}
+    elev <- seq(0,max(sts$ALT))
+    .scores(obs = prec, sim = p3, alts = c(elev[seq(1, length(elev), length(elev)/10)],max(elev)), 
+           dates = seq.Date(as.Date(inidate), as.Date(enddate), by = 'day'), est = sts)
+  }
+  
+  #replace gaps by estimates
+  for (i in 1:ncol(prec)) {
+    w <- which(is.na(prec[, i]))
     if (length(w) > 0)
-      obs[w, i] <- pred3[w, i]
+      prec[w, i] <- as.integer(round(pred3[w, i], 1))
   }
-  filled = obs
-  rm(obs)
-  save(filled,file='Filled.RData')
-
+  filled <- prec
+  save(filled, file = 'Filled.RData')
 }
+
+  
+  

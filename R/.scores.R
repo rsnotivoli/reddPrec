@@ -10,10 +10,10 @@
 #dates: vector of dates (as.Date()) of the same length
        #as the nrow() of obs and sim
 
-scores <- function(obs, sim, alts, dates){
+.scores <- function(obs, sim, alts, dates, est){
   
   #ordering the stations
-  sts <- sts[match(colnames(obs), sts$ID),]
+  est <- est[match(colnames(obs), est$ID),]
   sim <- sim[,match(colnames(obs), colnames(sim))]
   
   
@@ -61,18 +61,14 @@ scores <- function(obs, sim, alts, dates){
   write.table(errors ,'./val/stats_by_quantiles.txt', quote = F, row.names = F, sep='\t')
   
   ##
-  pdf('./val/histogram_obs_vs_pred.pdf',height=4,width=9,pointsize=10,useDingbats=F)
-  lo <- log10(onum)
-  lsi <-log10(snum)
-  hist(log10(onum), main = '', xlab = '', freq = F, xlim = c(min(lo, lsi), max(lo, lsi)))
-  par(new = T)
-  hist(log10(snum), lty = 2, xaxt = 'n',
-       yaxt = 'n', main = '', xlab = 'logPcp (mm)', ylab = '',
-       freq = F,
-       xlim = c(min(lo, lsi), max(lo, lsi)))
-  legend('topleft', lty = c(1,2), legend = c('Observed','Predicted'), 
-         bty = 'n')
-  dev.off()
+  # pdf('./val/histogram_obs_vs_pred.pdf',height=4,width=9,pointsize=10,useDingbats=F)
+  # lo <- log10(onum)
+  # lsi <- log10(snum)
+  # hist(lo, main = '', xlab = 'logPcp (mm)', freq = F, xlim = c(min(lo, lsi), max(lo, lsi)))
+  # hist(lsi, freq = F, add = TRUE, lty = 2)
+  # legend('topleft', lty = c(1,2), legend = c('Observed','Predicted'), 
+  #        bty = 'n')
+  # dev.off()
   
   ##
   ####################
@@ -80,7 +76,7 @@ scores <- function(obs, sim, alts, dates){
   ####################   
   print('Computing statistics by altitudes')
   #breaks
-  brks <- cut(sts$ALT, alts)
+  brks <- cut(est$ALT, alts)
   errors <- data.frame(matrix(NA,nrow=length(levels(brks)),ncol=7),stringsAsFactors=F)
   names(errors) <- c('%OBS','%PRED','MAE','ME','RM','RSD','N')
   

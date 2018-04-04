@@ -19,6 +19,8 @@ Serrano-Notivoli, R., De Luis, M., Saz, M.A. and Beguería, S. 2017. Spatially-b
 * Now you can set the number of neighbours to use in QC
 * New dependencies: *hydroGOF* (for scores calculation); *multiApply* (parallelization); *future* (multicore)
 * Already not depending on *snowfall*
+* Changed distance calculation to work with coordinates in degrees
+* Now gridPcp() saves gridded dataset in a .RData file
 
 **0.4 - 2017-10**
 * Improved the speed in gapFilling function
@@ -28,7 +30,6 @@ Serrano-Notivoli, R., De Luis, M., Saz, M.A. and Beguería, S. 2017. Spatially-b
 * Add functions to plot the results of the QC process
 * Add functionality to read, manage and write NetCDF files
 * Add functionality to work by chunks (handle Big Data files)
-* Change distance calculation to work with coordinates in degrees
 
 ## Issues and improvements
 Please, address any issue, comment or suggestion in the [issues section](https://github.com/rsnotivoli/reddPrec/issues)

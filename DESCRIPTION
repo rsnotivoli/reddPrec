@@ -10,7 +10,7 @@ Description: Computes quality control for daily precipitation datasets,
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-Depends: snowfall, fields, hydroGOF
+Depends: snowfall, fields, hydroGOF, multiApply, future
 NeedsCompilation: no
 Packaged: 2017-10-05 06:56:33 UTC; rserrano
 Repository: CRAN

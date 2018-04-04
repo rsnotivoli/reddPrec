@@ -31,7 +31,7 @@ qcPrec <- function (prec, sts, inidate, enddate, neibs = 10, thres = NA,
   #creates a distance matrix with the names of sorted neighbours
   distanc <- t(Apply(as.matrix(sts[,c('LAT','LON')]), 
                      margins = 1, 
-                     AtomicFun = 'dist_near', 
+                     AtomicFun = '.dist_near', 
                      y = sts[,c('LAT','LON','ID')], 
                      thres = thres,
                      ncores = ncpu)[[1]])

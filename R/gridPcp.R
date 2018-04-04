@@ -1,77 +1,51 @@
-#Grid creation
+
+#' This function creates gridded precipitation data
+
+#' @param filled matrix or data.frame containing the complete precipitation data by stations. Each column represents one station. The names of columns have to be names of the stations.
+#' @param sts matrix or data.frame containing the stations info. Must have at least four fields: ID: station identifier; ALT: altitude; X: Longitude in UTM projection (meters); and Y: Latitude in UTM projection (meters). Tabulation separated.
+#' @param inidate object of class character in format 'YYYY-mm-dd' defining the first day of quality control process
+#' @param enddate object of class character in format 'YYYY-mm-dd' defining the last day of quality control process
+#' @param neibs integer number of nearest neighbours to use
+#' @param thres maximum radius where neighbouring stations will be searched
+#' @param intermediate when TRUE, one file per day will be written in subdirectory ./days with the information about intermediate estimates.
+#' @param ncpu number of processor cores used to parallel computing. It uses all the available cores by default.
 
 
-gridPcp <- function (filled, points, sts, inidate, enddate, distanc){
+gridPcp <- function (filled, points, sts, inidate, enddate, ncpu, 
+                     thres = NA, neibs = 10, intermediate = T){
   dir.create("./gridded/", showWarnings = F)
   
-  datess = seq.Date(inidate, enddate, by = "day")
-  predday = function(x, datess, filled, distanc = distanc, 
-                     points = points, sts = sts) {
-    d = filled[x, ]
-    if (max(d, na.rm = T) == 0) {
-      predpoint <- matrix(0, ncol = 2, nrow = nrow(points))
-    } else {
-      ff_pred <- function(h, distanc, d, sts, points, w){
-        wsts <- match(names(distanc[[h]][[1]]), sts$ID)
-        obs <- d[wsts]
-        if (max(obs, na.rm = T) == 0) {
-          return(c(0,0))
-        } else {
-          sts_can <- points[h, ]
-          sts_nns <- sts[wsts, ]
-          b <- obs
-          b[b > 0] = 1
-          y = b
-          alt = sts_nns$ALT
-          lat = sts_nns$Y
-          lon = sts_nns$X
-          fmtb <- suppressWarnings(glm(y ~ alt + lat + 
-                                         lon, family = binomial()))
-          ##
-          newdata = data.frame(alt = sts_can$ALT, lat = sts_can$Y, 
-                               lon = sts_can$X)
-          pb <- predict(fmtb, newdata = newdata, type = "response")
-          if (pb < 0.001 & pb > 0) pb <- 0.001
-          pb <- round(pb, 3)
-          mini = min(obs)/2
-          maxi = max(obs) + (max(obs) - min(obs))
-          yr = as.numeric((obs - mini)/(maxi - mini))
-          fmt <- suppressWarnings(glm(yr ~ alt + lat + 
-                                        lon, family = quasibinomial()))
-          
-          p <- predict(fmt, newdata = newdata, type = "response")
-          if (p < 0.001 & p > 0) p <- 0.001
-          p <- round((p * (maxi - mini)) + mini, 3)
-          err <- sqrt(sum((yr - predict(fmt, type = "response"))^2)/(length(yr) - 
-                                                                       3))
-          if (err < 0.001 & err > 0) err <- 0.001
-          err <- round((err * (maxi - mini)) + mini, 3)
-          if (pb < 0.5) {
-            ppred = 0
-            eerr = 0
-          } else if (pb >= 0.5 & p < 1) {
-            ppred = 1
-            eerr = err
-          } else {
-            ppred = p
-            eerr = err
-          }
-        }
-        return(c(ppred, eerr))
-      }
-      predpoint <- t(sfSapply(1:nrow(points), fun = ff_pred, 
-                              distanc = distanc, d = d, sts = sts, 
-                              points = points, w = w))
-    }
-    predpoint <- cbind(points$ID, predpoint)
-    colnames(predpoint) = c("ID", "pred", "err")
-    write.table(predpoint, paste("./gridded/", datess[x], ".txt", 
-                                 sep = ""), quote = F, row.names = F, sep = "\t", 
-                na = "")
-  }
-  for(dd in 1:length(datess)){
-    print(paste('Computing date', datess[dd]))
-    predday(x = dd, datess, filled, distanc = distanc, 
-            points = points, sts = sts)
-  }
+  inidate <- as.Date(inidate)
+  enddate <- as.Date(enddate)
+  datess <- seq.Date(inidate, enddate, by = "day")
+  
+  #checks
+  m <- match(colnames(filled), sts$ID)
+  if(length(which(is.na(m))) > 0) 
+    stop('Stations ID do not coincide with dataset names')
+  
+  #creates a distance matrix with the names of sorted neighbours
+  distanc <- t(Apply(as.matrix(points[,c('LAT','LON')]), 
+                     margins = 1, 
+                     AtomicFun = '.dist_near', 
+                     y = sts[,c('LAT','LON','ID')], 
+                     thres = thres,
+                     ncores = ncpu)[[1]])
+  rownames(distanc) <- points$ID
+  
+  #select neighbours based on neibs
+  distanc <- distanc[,1:neibs]
+  
+  gridded <- t(Apply(list(as.matrix(filled), as.matrix(1:length(datess))),
+                       margins = 1, AtomicFun = '.predday', 
+                       distanc = distanc, points = points, sts = sts, 
+                       datess = datess, neibs = neibs, 
+                       intermediate = intermediate, ncores = ncpu)[[1]])
+  colnames(gridded) <- as.character(points$ID)
+  
+  roundd <- function(x){as.integer(round(x, 1)*10)}
+  gridded <- apply(gridded, 2, roundd)
+  
+  save(gridded, points, file = 'gridded_pcp.RData')
+  
 }

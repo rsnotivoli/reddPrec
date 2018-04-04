@@ -37,6 +37,7 @@
       distN <- nams[distN]
     }
   } else{
+    names(distN) <- 1:length(distN)
     if (!is.na(thres)){
       distN <- sort(distN)
       distN <- distN[distN<thres]

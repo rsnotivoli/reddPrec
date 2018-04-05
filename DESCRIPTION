@@ -15,3 +15,4 @@ NeedsCompilation: no
 Packaged: 2017-10-05 06:56:33 UTC; rserrano
 Repository: CRAN
 Date/Publication: 2017-10-17 08:34:54 UTC
+RoxygenNote: 6.0.1

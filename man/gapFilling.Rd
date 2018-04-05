@@ -40,9 +40,9 @@ Roberto Serrano-Notivoli
 \examples{
 
   #loads example data
-  data(precipDataset)
+#  data(precipDataset)
 
-  #runs function
-  gapFilling(prec=cleaned,sts=sts,inidate=as.Date('2001-01-01'),
-    enddate=as.Date('2001-01-02'),parallel=TRUE,ncpu=2,thres=NA)
+#  #runs function
+#  gapFilling(prec=cleaned,sts=sts,inidate=as.Date('2001-01-01'),
+#    enddate=as.Date('2001-01-02'),parallel=TRUE,ncpu=2,thres=NA)
 }

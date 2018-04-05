@@ -52,9 +52,9 @@ It is possible that many \code{warnings} appear at the end of the execution of t
 }
 \examples{
   #loads example data
-  data(precipDataset)
+#  data(precipDataset)
 
   #runs function
-  qcPrec(prec=preci,sts=sts,inidate=as.Date('2001-01-01'),
-    enddate=as.Date('2001-01-02'),parallel=TRUE,ncpu=2,printmeta=TRUE,thres=NA)
+#  qcPrec(prec=preci,sts=sts,inidate=as.Date('2001-01-01'),
+#    enddate=as.Date('2001-01-02'),parallel=TRUE,ncpu=2,printmeta=TRUE,thres=NA)
 }

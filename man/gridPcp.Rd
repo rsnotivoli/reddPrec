@@ -50,10 +50,10 @@ The time computing depends directly on the number of points of the \code{points}
 \examples{
 
   #loads example data
-  data(precipDataset)
+#  data(precipDataset)
 
   #runs function (only for two days)
-  gridPcp(filled=filled,points=points,sts=sts,inidate=as.Date('2001-01-01'),
-    enddate=as.Date('2001-01-01'),parallel=TRUE,ncpu=2)
+#  gridPcp(filled=filled,points=points,sts=sts,inidate=as.Date('2001-01-01'),
+#    enddate=as.Date('2001-01-01'),parallel=TRUE,ncpu=2)
 
 }

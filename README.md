@@ -12,12 +12,12 @@ Serrano-Notivoli, R., De Luis, M., Saz, M.A. and Beguería, S. 2017. Spatially-b
 
 ## Version history
 
-**1.0 - [in progress]**
+**1.0 - 2020-03**
 * Added functions for observations-estimates comparison, with validation purposes
 * Improved the speed of gridding process (now in two steps: distance calculation and gridding)
 * Improved the speed of quality control (QC)
 * Now you can set the number of neighbours to use in QC
-* New dependencies: *hydroGOF* (for scores calculation); *multiApply* (parallelization); *future* (multicore)
+* New dependencies: *hydroGOF* (for scores calculation); *multiApply* (parallelization)
 * Already not depending on *snowfall*
 * Changed distance calculation to work with coordinates in degrees
 * Now gridPcp() saves gridded dataset in a .RData file

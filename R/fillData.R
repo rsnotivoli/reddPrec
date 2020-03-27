@@ -1,6 +1,6 @@
 
 
-  .fillData <-function(x, dat, datess, neibs, distanc = distanc, sts = sts, intermediate){
+  fillData <-function(x, dat, datess, neibs, distanc = distanc, sts = sts, intermediate){
     
     nams <- as.character(sts$ID) #names
     dir.create('./days/',showWarnings = F)
@@ -12,33 +12,38 @@
     err <- rep(NA, length(x))
     
     w <- which(!is.na(x))
-    if(length(w) == 0) { #if no data, ends
+    if(length(w) == 0) { # if no data, ends
       if(intermediate){
-      write.table(data.frame(obs = x, wd_pred = NA, 
+      write.table(data.frame(ID = nams, 
+                             obs = x, wd_pred = NA, 
                              raw_pred = NA, mod_pred = NA,
                              err = NA), output, quote =F, 
                   sep = '\t', row.names = F, na = '')}
       return(rep(NA, length(x)))
-      print(paste('No data on day',as.character(datess[dat])))
-    } else if(length(w) < neibs){ #if less data than neighbours, ends
+      message(paste('No data on day',as.character(datess[dat])))
+    } else if(length(w) < neibs){ # if less data than neighbours, ends
       if(intermediate){
-      write.table(data.frame(obs = x, wd_pred = NA, 
+      write.table(data.frame(ID = nams, 
+                             obs = x, wd_pred = NA, 
                              raw_pred = NA, mod_pred = NA,
                              err = NA), output, quote =F, 
                   sep = '\t', row.names = F, na = '')}
       return(rep(NA, length(x)))
-      print(paste('Not enough neighbours on day',as.character(datess[dat])))
+      message(paste('Not enough neighbours on day',as.character(datess[dat])))
       } else{
-        if(max(x, na.rm = T) == 0) { #if max data is 0, ends
+        if(max(x, na.rm = T) == 0) { # if max value is 0, ends
           if(intermediate){
-          write.table(data.frame(obs = x, wd_pred = 0, 
+          write.table(data.frame(ID = nams, 
+                                 obs = x, wd_pred = 0, 
                                  raw_pred = 0, mod_pred = 0,
                                  err = 0), output, quote =F, 
                       sep = '\t', row.names = F, na = '')}
           return(rep(0, length(x)))
         } else {
-            
-          #start evaluating data
+          
+          ###################
+          # evaluating data
+          ###################
           for (h in 1:length(x)) {
             #set nearest observations
             dst <- distanc[h,]
@@ -46,7 +51,8 @@
             wn <- which(n == nams[h])
             if(length(wn) > 0) n <- n[-c(wn)]
             k <- match(dst, n)
-            dst <- dst[-c(which(is.na(k)))] #neighbours with data
+            dst <- dst[-c(which(is.na(k)))] # neighbours with data
+            if(length(dst) < neibs) next # ends if inssuficient neibs
             dst <- dst[1:neibs]
             ref <- x[match(dst, nams)]
             if (max(ref) == 0) {
@@ -104,7 +110,8 @@
             }
           }
           if(intermediate){
-          write.table(data.frame(obs = as.numeric(x), 
+          write.table(data.frame(ID = nams, 
+                                 obs = as.numeric(x), 
                                  wd_pred = as.numeric(wd_pred), 
                                  raw_pred = as.numeric(raw_pred), 
                                  mod_pred = as.numeric(mod_pred),

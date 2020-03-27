@@ -5,8 +5,10 @@
 #' @param x vector with the coordinates of the candidate locations c(lat,lon) 
 #' @param y matrix or data.frame with the coordinates of the reference locations (including candidate or not) and their IDs two columns [lat,lon,ID]
 #' @param thres maximum radius where neighbouring stations will be searched
+#' @param nlim maximum number of neighbors to consider
+#' @details nlim sets the maximum number of neighbors to consider. When working with high number of stations (i.e.: > 1,000), a relatively low number here is recommended since it singnificantly reduces the size of the object.
 
-.dist_near <- function(x, y, thres){
+dist_near <- function(x, y, thres, nlim = NULL){
   
   #convert degrees in radians
   lat <- as.numeric(x[1])*pi/180
@@ -21,9 +23,8 @@
   distN <- (Rx2) * asin(pmin(distN,1))
   w <- which(distN == 0)
   
+  # if candidate is also in references, it is removed
   if(length(w) > 0){
-    #select only the 10 nearest points
-    #and return their indices
     names(distN) <- 1:length(distN)
     if (!is.na(thres)){
       distN <- sort(distN)
@@ -50,6 +51,9 @@
       distN <- nams[distN]
     }
     }
+  
+  if(!is.null(nlim)) distN <- distN[1:nlim] else 
+    if(distN < nrow(y)) distN <- c(distN, rep(NA, (nrow(y)-length(distN))))
   
   return(distN)
 }

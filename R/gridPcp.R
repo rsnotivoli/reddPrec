@@ -19,33 +19,36 @@ gridPcp <- function (filled, points, sts, inidate, enddate, ncpu,
   enddate <- as.Date(enddate)
   datess <- seq.Date(inidate, enddate, by = "day")
   
-  #checks
+  # checks
   m <- match(colnames(filled), sts$ID)
   if(length(which(is.na(m))) > 0) 
     stop('Stations ID do not coincide with dataset names')
   
-  #creates a distance matrix with the names of sorted neighbours
+  # creates a distance matrix with the names of sorted neighbours
   distanc <- t(Apply(as.matrix(points[,c('LAT','LON')]), 
                      margins = 1, 
-                     AtomicFun = '.dist_near', 
+                     fun = 'dist_near', 
                      y = sts[,c('LAT','LON','ID')], 
                      thres = thres,
                      ncores = ncpu)[[1]])
   rownames(distanc) <- points$ID
   
-  #select neighbours based on neibs
-  distanc <- distanc[,1:neibs]
+  # select neighbours based on neibs
+  distanc <- distanc[, 1:neibs]
+  
+  # predday(x = filled[1, ], dat = datess[1], distanc, points, sts, datess, neibs, intermediate)
   
   gridded <- t(Apply(list(as.matrix(filled), as.matrix(1:length(datess))),
-                       margins = 1, AtomicFun = '.predday', 
-                       distanc = distanc, points = points, sts = sts, 
-                       datess = datess, neibs = neibs, 
-                       intermediate = intermediate, ncores = ncpu)[[1]])
+                     margins = 1, 
+                     fun = 'predday', 
+                     distanc = distanc, 
+                     points = points, 
+                     sts = sts, 
+                     datess = datess, 
+                     neibs = neibs, 
+                     intermediate = intermediate, 
+                     ncores = ncpu)[[1]])
   colnames(gridded) <- as.character(points$ID)
   
-  roundd <- function(x){as.integer(round(x, 1)*10)}
-  gridded <- apply(gridded, 2, roundd)
-  
   save(gridded, points, file = 'gridded_pcp.RData')
-  
 }

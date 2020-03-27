@@ -28,12 +28,15 @@ qcPrec <- function (prec, sts, inidate, enddate, neibs = 10, thres = NA,
   #order stations like the columns in dataset
   sts <- sts[m,]
   
-  #creates a distance matrix with the names of sorted neighbours
+  # creates a distance matrix with the names of sorted neighbours
+  # increases x3 the possibilities of having neighbours
+  nlim <- neibs * 3
   distanc <- t(Apply(as.matrix(sts[,c('LAT','LON')]), 
                      margins = 1, 
-                     AtomicFun = '.dist_near', 
+                     fun = 'dist_near', 
                      y = sts[,c('LAT','LON','ID')], 
                      thres = thres,
+                     nlim = nlim,
                      ncores = ncpu)[[1]])
   rownames(distanc) <- sts$ID
   
@@ -42,9 +45,9 @@ qcPrec <- function (prec, sts, inidate, enddate, neibs = 10, thres = NA,
   it = 1 #iter count
   seguir = 1 #stop iter control
   while (seguir == 1) {
-    print(paste0('[',Sys.time(),'] -', " Iteration ", it, " of quality control"))
-    prec <- t(Apply(as.matrix(prec), margins = 1, AtomicFun = '.qcFirst', 
-              distanc = distanc, it = it, sts = sts, neibs = 10,
+    message(paste0('[',Sys.time(),'] -', " Iteration ", it, " of quality control"))
+    prec <- t(Apply(as.matrix(prec), margins = 1, fun = '.qcFirst', 
+              distanc = distanc, it = it, sts = sts, neibs = neibs,
               ncores = ncpu)[[1]])
     colnames(prec) <- c(as.character(sts$ID),'0')
     #increase iteration
@@ -57,9 +60,9 @@ qcPrec <- function (prec, sts, inidate, enddate, neibs = 10, thres = NA,
   prec <- prec[,1:(ncol(prec)-1)]
   
   #last iteration
-  print(paste0('[',Sys.time(),'] -', "Last iteration of quality control"))
+  message(paste0('[',Sys.time(),'] -', "Last iteration of quality control"))
   prec <- t(Apply(list(as.matrix(prec), as.matrix(ori), as.matrix(1:length(datess))),
-                margins = 1, AtomicFun = '.qcLast', 
+                margins = 1, fun = '.qcLast', 
                 distanc = distanc, it = it, sts = sts, datess = datess, 
                 printmeta = printmeta, ncores = ncpu)[[1]])
   

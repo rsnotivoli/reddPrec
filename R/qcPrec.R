@@ -1,259 +1,111 @@
-#Iterative quality control for daily precipitation datasets
 
-####################
-qcPrec <- function(prec,sts,inidate,enddate,parallel=TRUE,ncpu=2,printmeta=TRUE,thres=NA){
+#' Quality Control of daily precipitation observations
 
-  ori=prec
-  ids=colnames(prec) #station names
+#' @description This function apply several threshold-based criteria to filter original observations of daily precipitation.
+#' @param prec matrix or data.frame containing the original precipitation data. Each column represents one station. The names of columns have to be names of the stations.
+#' @param sts matrix or data.frame. A column "ID" (unique ID of stations) is required. The rest of the columns (all of them) will act as predictors of the model.
+#' @param crs character. Coordinates system in EPSG format (e.g.: "EPSG:4326").
+#' @param coords vector of two character elements. Names of the fields in "sts" containing longitude and latitude.
+#' @param coords_as_preds logical. If TRUE (default), "coords" are also taken as predictors.
+#' @param neibs integer. Number of nearest neighbors to use.
+#' @param thres numeric. Maximum radius (in km) where neighboring stations will be searched. NA value uses the whole spatial domain.
+#' @param qc vector of strings with the QC criteria to apply. Default is "all". See details.
+#' @param qc3 numeric. Indicates the threshold (number of times higher or lower) from which a observation, in comparison with its estimate, should be deleted. Default is 10.
+#' @param qc4 numeric vector of length 2. Thresholds of wet probability (0 to 1) and magnitude (in the units of input precipitation data) from which a observation of value zero, in comparison with its estimate, should be deleted. Default is c(0.99, 5). 
+#' @param qc5 numeric vector of length 2. Thresholds of dry probability (0 to 1) and magnitude (in the units of input precipitation data) from which a observation higher than a specific value (also in the original units), in comparison with its estimate, should be deleted. Default is c(0.01, 0.1, 5). 
+#' @param ncpu number of processor cores used to parallel computing.
+#' @export
+#' @importFrom doParallel registerDoParallel
+#' @importFrom foreach %dopar% foreach
+#' @details 
+#' Parameter "sts" must have an "ID" field containing unique identifiers of the stations.
+#' 
+#' "qc" can be "all" (all criteria are applied) or a vector of strings (e.g.: c("1","2","4")) indicating the QC criteria to apply to observations:
+#' "1" (suspect value): obs==0 & all(neibs>0); 
+#' "2" (suspect zero): obs>0 & all(neibs==0); 
+#' "3" (suspect outlier): obs is "qc3" times higher or lower than the estimate; 
+#' "4" (suspect wet): obs==0 & wet probability > "qc4\[1\]" & estimate > "qc4\[2\]"; 
+#' "5" (suspect dry): obs>"qc5\[3\]" & dry probability < "qc5\[1\]" & estimate < "qc5\[2\]"
+#' @examples
+#' \dontrun{
+#' set.seed(123)
+#' prec <- round(matrix(rnorm(30*50, mean = 1.2, sd = 6), 30, 50), 1)
+#' prec[prec<0] <- 0
+#' colnames(prec) <- paste0('sts_',1:50) 
+#' sts <- data.frame(ID = paste0('sts_',1:50), lon = rnorm(50,0,1), 
+#'                   lat = rnorm(50,40,1), dcoast = rnorm(50,200,50))
+#' qcdata <- qcPrec(prec, sts, crs = 'EPSG:4326', coords = c('lon','lat'),
+#'                  coords_as_preds = TRUE, neibs = 10, thres = NA,
+#'                  qc = 'all', qc3 = 10, qc4 = c(0.99, 5), qc5 = c(0.01, 0.1, 5),
+#'                  ncpu=2)
+#'str(qcdata)
+#'}
 
-  #matrix of distances
-  x1 <- cbind(sts$X,sts$Y)
-  x2 <-  x1
-  distanc <- rdist( x1,x2)/1000
-  colnames(distanc) = sts$ID
-  rownames(distanc) = sts$ID
-
-  #vector of dates
-  datess=seq.Date(inidate,enddate,by='day')
-
-  #we add a last column to insert the flag code
-  prec=cbind(prec,0)
-
-  #First function: iterative process
-  qcFirst <-function(x,datess,prec,distanc,it,sts,thres){
-
-    dw=which(x==datess)
-    d=prec[dw,1:(ncol(prec)-1)]
-    if(it>1 & as.numeric(prec[dw,ncol(prec)])==0) return(prec[dw,]) else {
-      if(sum(is.na(d))==length(d)){
-        print(paste('No data on day',x))
-      } else{
-        clean=data.frame(matrix(NA,ncol=4,nrow=length(d))); clean[,1] <- names(d)
-        names(clean)=c('ID','obs','pred','code')
-        clean$obs=as.numeric(d) #observed data in that day
-        #if all data are 0...
-        if(max(clean$obs,na.rm=T)==0){
-          clean$pred=clean$obs
-        } else{#else...
-
-          #Now the work is by station, to that day
-          for(h in 1:nrow(clean)){
-            can=as.numeric(clean$obs[h])
-            if(is.na(can)) next else{
-              #neighbours
-              kk=data.frame(ID=rownames(distanc),D=distanc[,which(clean$ID[h]==colnames(distanc))],
-                            obs=clean$obs[match(clean$ID,rownames(distanc))],
-                            stringsAsFactors=F)
-              kk=kk[order(as.numeric(kk$D)),]#ordering neighbours by distance
-              wna=which(is.na(kk$obs))
-              if(length(wna)>0) kk=kk[-c(wna),]#and removing which have no data
-              kk=kk[-c(1),]#removing first, because it is the candidate
-              if(!is.na(thres)){#introduces threshold, if set
-                kk=kk[-c(which(kk$D>thres)),]
-              }
-              if(nrow(kk)<10) {print(paste('Less than 10 nearest observations in day',
-                x,'and station',clean$ID[h]))} else{ kk=kk[1:10,] #if not 10 nearest obs, go next
-                  if(max(kk$obs,can)==0) next else if(max(kk$obs,na.rm=T)==0 & can>0){
-                    clean$pred[h]=NA
-                    clean$code[h]=1
-                  } else if(min(kk$obs,na.rm=T)>0 & can==0){
-                      clean$pred[h]=NA; clean$code[h]=2
-                    } else{
-                        #predicted
-                        sts_can <- sts[which(clean$ID[h]==sts$ID),]
-                        sts_nns <- sts[match(kk$ID,sts$ID),]
-                        #binomial
-                        b <- kk$obs; b[b>0]=1
-                        DF <- data.frame(y=b,alt=sts_nns$ALT,lat=sts_nns$Y,lon=sts_nns$X)
-                        fmtb <- suppressWarnings(glm(y~alt+lat+lon, data=DF, family=binomial()))
-                        newdata=data.frame(alt=sts_can$ALT,lat=sts_can$Y,lon=sts_can$X)
-                        pb <- predict(fmtb,newdata=newdata,type='response')
-                        if(pb<0.001 & pb>0) pb <- 0.001
-                        pb <- round(pb,3)
-                        #data
-                        mini=min(kk$obs)/2
-                        maxi=max(kk$obs)+(max(kk$obs)-min(kk$obs))
-                        yr=as.numeric((kk$obs-mini)/(maxi-mini))
-                        DF$y=yr
-                        fmt <- suppressWarnings(glm(y~alt+lat+lon, data=DF, family=quasibinomial()))
-                        p <- predict(fmt,newdata=newdata,type='response')
-                        if(p<0.001 & p>0) p <- 0.001
-                        p <- round((p*(maxi-mini))+mini,3)
-
-                        #more conditions...
-                        if(can==0 & pb>0.5){
-                          if((max((can+10)/(p+10),(p+10)/(can+10)))>10){
-                            clean$pred[h]=NA
-                            clean$code[h]=3
-                          }
-                        }
-                        if(can>0){
-                          if((max((can+10)/(p+10),(p+10)/(can+10)))>10){
-                            clean$pred[h]=NA
-                            clean$code[h]=3
-                          }
-                        }
-                        if(can==0 & pb>0.99 & p>50){
-                          clean$pred[h]=NA
-                          clean$code[h]=4
-                        }
-                        if(can>50 & pb<0.01 & p<1){
-                          clean$pred[h]=NA
-                          clean$code[h]=5
-                        }
-                      }#next pred calculation
-                    }
-            }
-          }#next station
-        }
-      }
-
-      ww=which(!is.na(clean$code))
-      if(length(ww)>0){
-        k <- cbind(clean$ID[ww],rep(as.character(x),length(ww)),
-                   clean$code[ww],clean$obs[ww])
-        colnames(k)=c('ID','date','code','data')
-        #prec[dw,unlist(lapply(k[,1],FUN=w.nam,y=colnames(prec)))] <- NA
-        prec[dw,match(k[,1],colnames(prec))] <- NA
-        prec[dw,ncol(prec)] <- nrow(k)
-      } else prec[dw,ncol(prec)] <- 0
-
-      return(prec[dw,])
+qcPrec <- function (prec, sts, crs, coords, coords_as_preds = TRUE, neibs = 10, thres = NA,
+                    qc = 'all', qc3 = 10, qc4 = c(0.99, 5), qc5 = c(0.01, 0.1, 5), ncpu = 1) 
+{
+  
+  #checks
+  if(ncol(prec) != nrow(sts)) 
+    stop('The number of stations and precipitation data is different')
+  
+  # same order of columns and stations
+  prec <- prec[,match(sts$ID,colnames(prec))]
+  
+  registerDoParallel(cores=ncpu)
+  
+  #First round of iterations
+  a <- cbind(prec, 0) #adding the iter control at end
+  j <- NULL
+  it <- 1 #iter count
+  seguir <- 1 #stop iter control
+  while (seguir == 1) {
+    message(paste0('[',Sys.time(),'] -', " Iteration ", it, " of quality control"))
+    
+    a <- foreach(j = 1:nrow(a), .combine=cbind, .export=c("qcFirst")) %dopar% {
+         qcFirst(x = a[j,], 
+              it = it, 
+              sts = sts[,-which(colnames(sts)=='ID')], 
+              neibs = neibs,
+              coords = coords,
+              crs = crs,
+              coords_as_preds = TRUE,
+              thres = thres,
+              qc = qc, qc3 = qc3, qc4 = qc4, qc5 = qc5)
+    }
+    a <- t(a)
+    
+    
+    #increase iteration
+    it <- it + 1 
+    #check if need more iterations
+    if (sum(a[, ncol(a)]) == 0) {
+      seguir <- 0
     }
   }
-
-  #Second function: this is like previous but using original data. Only last iteration.
-  qcLast <-function(x,datess,prec,ori,distanc,sts,printmeta=printmeta,thres){
-    dw=which(x==datess)
-    d=prec[dw,1:(ncol(prec)-1)]
-    oris=as.numeric(ori[dw,])#original data
-    if(sum(is.na(oris))==length(d)){
-      print(paste('No data on day',x))
-    } else{
-      clean=data.frame(matrix(NA,ncol=4,nrow=length(d))); clean[,1] <- names(d)
-      names(clean)=c('ID','obs','pred','code')
-      clean$obs=as.numeric(d)
-      if(max(oris,na.rm=T)==0){
-        clean$pred=oris
-      } else{
-        for(h in 1:nrow(clean)){
-          can=oris[h]
-          if(is.na(can)) next else{
-            kk=data.frame(ID=rownames(distanc),D=distanc[,which(clean$ID[h]==colnames(distanc))],
-                          obs=clean$obs[match(clean$ID,rownames(distanc))],
-                          stringsAsFactors=F)
-            kk=kk[order(kk$D),]
-            wna=which(is.na(kk$obs))
-            if(length(wna)>0) kk=kk[-c(wna),]#and removing which have no data
-            kk=kk[-c(1),]
-            if(!is.na(thres)){
-              kk=kk[-c(which(kk$D>thres)),]
-            }
-            if(nrow(kk)<10) {print(paste('Less than 10 nearest observations in day',
-                x,'and station',clean$ID[h]))} else {kk=kk[1:10,] #if not 10 nearest obs, go next
-                  if(max(kk$obs,can)==0) next else if(max(kk$obs,na.rm=T)==0 & can>0){
-                    clean$pred[h]=NA; clean$code[h]=1
-                  } else if(min(kk$obs,na.rm=T)>0 & can==0){
-                      clean$pred[h]=NA
-                      clean$code[h]=2
-                    } else{
-                      sts_can <- sts[which(clean$ID[h]==sts$ID),]
-                      sts_nns <- sts[match(kk$ID,sts$ID),]
-                      #binomial prediction
-                      b <- kk$obs; b[b>0]=1
-                      DF <- data.frame(y=b,alt=sts_nns$ALT,lat=sts_nns$Y,lon=sts_nns$X)
-                      fmtb <- suppressWarnings(glm(y~alt+lat+lon, data=DF, family=binomial()))
-                      newdata=data.frame(alt=sts_can$ALT,lat=sts_can$Y,lon=sts_can$X)
-                      pb <- predict(fmtb,newdata=newdata,type='response')
-                      if(pb<0.001 & pb>0) pb <- 0.001
-                      pb <- round(pb,3)
-                      #data prediction
-                      mini=min(kk$obs)/2
-                      maxi=max(kk$obs)+(max(kk$obs)-min(kk$obs))
-                      yr=as.numeric((kk$obs-mini)/(maxi-mini))
-                      DF$y=yr
-                      fmt <- suppressWarnings(glm(y~alt+lat+lon, data=DF, family=quasibinomial()))
-                      p <- predict(fmt,newdata=newdata,type='response')
-                      if(p<0.001 & p>0) p <- 0.001
-                      p <- round((p*(maxi-mini))+mini,3)
-
-                      if(can==0 & pb>0.5){
-                        if((max((can+10)/(p+10),(p+10)/(can+10)))>10){
-                          clean$pred[h]=NA
-                          clean$code[h]=3
-                        }
-                      }
-                      if(can>0){
-                        if((max((can+10)/(p+10),(p+10)/(can+10)))>10){
-                          clean$pred[h]=NA
-                          clean$code[h]=3
-                        }
-                      }
-                      if(can==0 & pb>0.99 & p>50){
-                        clean$pred[h]=NA
-                        clean$code[h]=4
-                      }
-                      if(can>50 & pb<0.01 & p<1){
-                        clean$pred[h]=NA
-                        clean$code[h]=5
-                      }
-                    }#next pred calculation
-                  }
-          }
-        }#next station
-      }
-    }
-
-    ww=which(!is.na(clean$code))
-    if(length(ww)>0){
-      k <- cbind(clean$ID[ww],rep(as.character(x),length(ww)),clean$code[ww],oris[ww])
-      colnames(k)=c('ID','date','code','data')
-      ori[dw,match(k[,1],colnames(prec))] <- NA
-      if(printmeta){
-        dir.create('./meta/',showWarnings = F)
-        write.table(k,paste('./meta/meta_',x,'.txt',sep=''),quote=F,row.names=F,na='',sep='\t')
-      }
-    }
-    return(ori[dw,])
+  a <- a[,1:(ncol(a)-1)]
+  rownames(a) <- NULL
+  
+  #last iteration
+  message(paste0('[',Sys.time(),'] -', "Last iteration of quality control"))
+  
+  b <- foreach(j = 1:nrow(a), .combine=cbind, .export=c("qcLast")) %dopar% {
+    qcLast(x = a[j,], 
+           y = prec[j,],
+           sts = sts[,-which(colnames(sts)=='ID')], 
+           neibs = neibs,
+           coords = coords,
+           crs = crs,
+           coords_as_preds = TRUE,
+           thres = thres,
+           qc = qc, qc3 = qc3, qc4 = qc4, qc5 = qc5)
   }
-
-
-  #First round of QC
-  if(parallel){
-    sfInit(parallel=T,cpus=ncpu)
-  }
-  it=1
-  seguir=1
-  while(seguir==1){
-    print(paste('Iteration',it,'of quality control'))
-    #will we work with parallel code?
-    if(parallel){
-      d=sfLapply(datess,fun=qcFirst,datess=datess,prec=prec,distanc=distanc,it=it,sts=sts,thres=thres)
-    } else {
-      d=lapply(datess,FUN=qcFirst,datess=datess,prec=prec,distanc=distanc,it=it,sts=sts,thres=thres)
-    }
-
-    prec=data.frame(matrix(unlist(d),nrow=length(d),byrow=T),stringsAsFactors=F)
-    colnames(prec)= ids
-    gc()
-    it=it+1 #go to next iteration, if needs
-    if(sum(prec[,ncol(prec)])==0){
-      seguir=0
-    }
-  }
-
-
-  #Second and last round of QC
-  if(parallel){
-    print('Last iteration of quality control')
-    d=sfLapply(datess,fun=qcLast,datess=datess,prec=prec,ori=ori,distanc=distanc,sts=sts,printmeta=printmeta,thres=thres)
-  } else {
-    d=lapply(datess,FUN=qcLast,datess=datess,prec=prec,ori=ori,distanc=distanc,sts=sts,printmeta=printmeta,thres=thres)
-  }
-  prec=data.frame(matrix(unlist(d),nrow=length(d),byrow=T),stringsAsFactors=F)
-  colnames(prec)= ids
-  gc()
-  sfStop()
-  save(prec,sts,file='cleaned.RData')
-  #End of Quality Control
+  cleaned <- t(b[1:nrow(sts),])
+  rownames(cleaned) <- NULL
+  codes <- t(b[(nrow(sts)+1):nrow(b),])
+  rownames(codes) <- NULL
+  
+  message(paste0('[',Sys.time(),'] -', " End"))
+  
+  return(list(cleaned=cleaned, codes=codes))
 }

@@ -1,19 +1,3 @@
----
-home:
-  strip_header: true
-  sidebar:
-    structure: [links, license, community, citation, authors, dev]
-output: 
-  html_document: 
-    theme: spacelab
-    keep_md: true
-    self_contained: false
-    toc: true
-    number_sections: true
-    toc_float: true
----
-
-
 
 ## Introduction to reddPrec
 

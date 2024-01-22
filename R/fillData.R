@@ -92,8 +92,8 @@
                 p <- predict(fmt, newdata = as.data.frame(can),type = "response")
                 p <- round((p * RANGE) + MINc, 2)
                 
-                # error calculation [COMPROBAR ÚLTIMO TÉRMINO (- 3)]
-                e <- sqrt(sum((rr$val - predict(fmt, type = 'response')) ^ 2)/(length(rr$val) - 3))
+                # error calculation 
+                e <- sqrt(sum((rr$val - predict(fmt, type = 'response')) ^ 2)/(length(rr$val) - length(n)))
                 e <- round((e * RANGE) + MINc, 2)
                 
                 #evaluating estimate

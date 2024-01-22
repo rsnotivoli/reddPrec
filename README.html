@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>README.knit</title>
+
+<script src="README_files/header-attrs-2.23/header-attrs.js"></script>
+<script src="README_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="README_files/bootstrap-3.3.5/css/spacelab.min.css" rel="stylesheet" />
+<script src="README_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="README_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="README_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="README_files/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="README_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="README_files/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="README_files/navigation-1.1/tabsets.js"></script>
+<link href="README_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="README_files/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div id="header">
+
+
+
+
+</div>
+
+
+<div id="introduction-to-reddprec" class="section level2" number="0.1">
+<h2><span class="header-section-number">0.1</span> Introduction to
+reddPrec</h2>
+<p>The goal of <strong>reddPrec</strong> is to perform a complete
+reconstruction of daily precipitation. The process follows 3 steps: 1)
+quality control of daily raw precipitation observations; 2) gap filling
+of missing values in data series; 3) creation of gridded datasets.</p>
+<p>While here is provided a simple explanation about how to use the
+functions, a detailed explanation of the methodology can be found in: <a
+href="https://doi.org/10.1016/j.envsoft.2016.11.005">Serrano-Notivoli et
+al., (2017)</a>.</p>
+<p>Each one of the three steps can be applied independently through the
+three available functions:</p>
+<ul>
+<li><strong>qcPrec()</strong>: applies several threshold-based criteria
+to filter original observations of daily precipitation.</li>
+<li><strong>gapFilling()</strong>: estimates new values for missing data
+in daily precipitation data series.</li>
+<li><strong>gridPcp()</strong>: creates a gridded precipitation dataset
+from a station-based dataset of observations.</li>
+</ul>
+<p>While the whole package is designed to work with daily precipitation,
+monthly and annual data can be addressed.</p>
+</div>
+<div id="installation" class="section level2" number="0.2">
+<h2><span class="header-section-number">0.2</span> Installation</h2>
+<p>Installation is straightforward since the package is available on
+CRAN:</p>
+<pre class="r"><code>install.packages(&quot;reddPrec&quot;)</code></pre>
+</div>
+<div id="preparation-of-data" class="section level2" number="0.3">
+<h2><span class="header-section-number">0.3</span> Preparation of
+data</h2>
+<div id="daily-precipitation-observations" class="section level3"
+number="0.3.1">
+<h3><span class="header-section-number">0.3.1</span> Daily precipitation
+observations</h3>
+<p>We will use a set of daily precipitation observations from the
+Spanish Meterological Agency (AEMET) as example.</p>
+<p>The package <a
+href="https://ropenspain.github.io/climaemet/">climaemet</a> facilitates
+the process of downloading the data, but you will need an API key from
+AEMET that can be freely obtained <a
+href="https://opendata.aemet.es/centrodedescargas/altaUsuario?">here</a>.</p>
+<pre class="r"><code>library(climaemet)
+
+# just replace &quot;MY_API_KEY&quot; by your personal API key and run this:
+# aemet_api_key(&quot;MY_API_KEY&quot;, install=TRUE)
+
+data_daily &lt;- aemet_daily_clim(station = &quot;all&quot;,
+                               start = &quot;2022-05-01&quot;, 
+                               end = &quot;2022-05-31&quot;,
+                               return_sf = TRUE)</code></pre>
+<p>We only want to analyze the Iberian Peninsula and Balearic Islands,
+so we crop the spatial domain of the data with package <a
+href="https://r-spatial.github.io/sf/">sf</a> using the boundaries of
+the Spanish regions (except Canary Islands) retrieved with package <a
+href="https://ropengov.github.io/giscoR/">giscoR</a>.</p>
+<pre class="r"><code>library(sf)
+library(giscoR)
+spain &lt;- gisco_get_nuts(country = &quot;Spain&quot;, nuts_level = &quot;2&quot;)
+spain &lt;- spain[-which(spain$NAME_LATN==&#39;Canarias&#39;),]
+data_daily &lt;- st_crop(data_daily, spain)</code></pre>
+<pre><code>## Warning: attribute variables are assumed to be spatially constant throughout
+## all geometries</code></pre>
+<p>The daily data must be organized in a single matrix with columns
+(stations) and rows (days). To do that, we use the <a
+href="https://cran.r-project.org/web/packages/reshape/index.html">reshape</a>
+package which facilitates the task of <em>casting</em> data.</p>
+<pre class="r"><code>library(reshape)
+dd &lt;- cbind(as.data.frame(data_daily),st_coordinates(data_daily))
+obs_pr &lt;- cast(dd[,c(&#39;fecha&#39;,&#39;indicativo&#39;,&#39;prec&#39;)], fecha~indicativo)</code></pre>
+<p>AEMET codes low precipitation data (<em>PCP&lt;0.1</em>) as “Ip”. As
+the function only accepts numeric values, we ensure that no strings
+remain.</p>
+<pre class="r"><code>obs_pr &lt;- apply(obs_pr, 2, function(x){
+  x &lt;- gsub(&#39;,&#39;,&#39;.&#39;,x)
+  x[x==&#39;Ip&#39;] &lt;- NA
+  as.numeric(x)
+})</code></pre>
+<p>Lastly, we create a data.frame with the information of the
+stations</p>
+<pre class="r"><code>stations &lt;- data.frame(ID=dd$indicativo, alt = dd$altitud, lon = dd$X, lat = dd$Y)
+stations &lt;- stations[-which(duplicated(stations$ID)),]</code></pre>
+</div>
+<div id="creation-of-geospatial-raster-data" class="section level3"
+number="0.3.2">
+<h3><span class="header-section-number">0.3.2</span> Creation of
+geospatial (raster) data</h3>
+<p>Te estimation of precipitation is used in all stages of the
+reconstruction process, and it uses environmental data as predictors. As
+we don’t have available this information for each station’s location, it
+can be extracted from raster data, but must create it first.</p>
+<p>In this case, we will use five predictors: 1) elevation, 2) latitude,
+3) longitude, 4) distance to the coast (as a cost-distance function with
+elevation) and 5) TRI (Terrain Ruggedness Index).</p>
+<p>First, we use the <a
+href="https://github.com/jhollist/elevatr">elevatr</a> package to derive
+a raster of elevations. Then, the <a
+href="https://rspatial.org/pkg/index.html">terra</a> package will allow
+for calculating the required environmental predictors derived from
+elevations.</p>
+<pre class="r"><code>library(elevatr)
+library(terra)
+dem &lt;- get_elev_raster(data_daily, z = 5)
+dem &lt;- crop(dem, spain)
+dem &lt;- mask(dem, spain)
+dem[dem&lt;0] &lt;- 0
+dem &lt;- rast(dem)
+dc &lt;- costDist(dem)
+tr &lt;- terrain(dem, v = &#39;TRI&#39;)</code></pre>
+<p>Now we create the latitude and longitude rasters from the stations’
+information.</p>
+<pre class="r"><code>lon &lt;- rast(cbind(crds(dem),crds(dem)[,1]),type=&#39;xyz&#39;,crs=&#39;EPSG:4326&#39;)
+lat &lt;- rast(cbind(crds(dem),crds(dem)[,2]),type=&#39;xyz&#39;,crs=&#39;EPSG:4326&#39;)</code></pre>
+<p>Lastly, we extract the values of distance to the coast and TRI to the
+stations</p>
+<pre class="r"><code>stations &lt;- vect(stations, geom=c(&#39;lon&#39;,&#39;lat&#39;),crs = &#39;EPSG:4326&#39;,keepgeom=TRUE)
+stations$dc &lt;- terra::extract(dc, stations)[,2]
+stations$tr &lt;- terra::extract(tr, stations)[,2]
+stations &lt;- as.data.frame(stations)</code></pre>
+<p>Those stations with no overlapping with raster don’t have data, so we
+remove them</p>
+<pre class="r"><code>stations &lt;- stations[complete.cases(stations),]
+obs_pr &lt;- obs_pr[, match(stations$ID, colnames(obs_pr))]</code></pre>
+<p>At his point, we have available the dataset with the original
+data.</p>
+<pre class="r"><code>st &lt;- vect(stations, geom=c(&#39;lon&#39;,&#39;lat&#39;),crs = &#39;EPSG:4326&#39;,keepgeom=TRUE)
+st$ndata &lt;- colSums(!is.na(obs_pr))*100/nrow(obs_pr)
+
+plot(dem, main = &quot;Precipitation stations&quot;)
+plot(st, cex=st$ndata/100, pch = 1, add=T)</code></pre>
+<p><img src="man/figures/unnamed-chunk-12-1.png" /><!-- --></p>
+<p>And the environmental pedictors</p>
+<pre class="r"><code>env &lt;- c(dem, lon, lat, dc, tr)
+names(env) &lt;- c(&quot;alt&quot;,&quot;lon&quot;,&quot;lat&quot;,&quot;dc&quot;,&quot;tr&quot;)
+plot(env)</code></pre>
+<p><img src="man/figures/unnamed-chunk-13-1.png" /><!-- --></p>
+</div>
+</div>
+<div id="quality-control" class="section level2" number="0.4">
+<h2><span class="header-section-number">0.4</span> Quality control</h2>
+<p>The quality control (QC) function allows for a customization of the
+thresholds applied to each criteria. In this case, we will flag and
+remove the observations based on the following conditionals:</p>
+<ul>
+<li>the coordinates (lon, lat) will be used as predictors</li>
+<li>the 10 nearest observations to estimate precipitation</li>
+<li>no maximum radius of searching nearest observations</li>
+<li>we will apply the 5 reference QC criteria: suspect value, suspect
+zero, suspect outlier, suspect wet day and suspect dry day.</li>
+<li>a threshold of 10 times higher or lower observation than estimate to
+detect outliers</li>
+<li>a threshold of 0.99 wet probability and an observed magnitude higher
+than 5 mm to detect suspect zeros.</li>
+<li>a threshold of 0.01 wet probability and an observed magnitude lower
+than 0.1 mm to detect suspect values higher than 5 mm.</li>
+<li>two processor cores to compute results in parallel (usually the
+higher the faster, depending on your hardware capabilities)</li>
+</ul>
+<pre class="r"><code>library(reddPrec)
+qcdata &lt;- qcPrec(prec = obs_pr, 
+                 sts = stations, 
+                 crs = &#39;EPSG:4326&#39;, coords = c(&#39;lon&#39;,&#39;lat&#39;),
+                 coords_as_preds = TRUE, neibs = 10, thres = NA,
+                 qc = &#39;all&#39;, qc3 = 10, qc4 = c(0.99, 5), qc5 = c(0.01, 0.1, 5),
+                 ncpu=2)</code></pre>
+<p>Depending on the velocity of your processor(s), the job will be done
+quick or slow, but this particular task (with our setting) should take a
+few minutes. If you use a large dataset of observations, the computing
+time rises.</p>
+<p>The result is a list of two elements:</p>
+<ul>
+<li><strong>cleaned</strong>: a matrix (stations x days) with the
+filtered observations (cleaned data).</li>
+<li><strong>codes</strong>: a matrix (stations x days) with the codes
+corresponding to the reasons of values removal
+<ul>
+<li>“1” (suspect value): obs==0 &amp; all(neibs&gt;0)</li>
+<li>“2” (suspect zero): obs&gt;0 &amp; all(neibs==0)</li>
+<li>“3” (suspect outlier): obs is “qc3” times higher or lower than the
+estimate</li>
+<li>“4” (suspect wet): obs==0 &amp; wet probability &gt; “qc4[1]” &amp;
+estimate &gt; “qc4[2]”</li>
+<li>“5” (suspect dry): obs&gt;“qc5[3]” &amp; dry probability &lt;
+“qc5[1]” &amp; estimate &lt; “qc5[2]”)</li>
+</ul></li>
+</ul>
+<p>In our particular example, the outliers (QC3) were the most flagged
+values (3.05%), followed by suspect values (QC1, 0.90%), suspect dry
+(QC5, 0.42%), suspect wet (QC4, 0.21%) and suspect zeros (QC2,
+0.11%).</p>
+<pre class="r"><code>allcodes &lt;- as.numeric(as.matrix(qcdata$codes))
+flagged &lt;- round(table(allcodes)*100/length(allcodes),2)
+flagged</code></pre>
+<pre><code>## allcodes
+##    1    2    3    4    5 
+## 0.90 0.11 3.05 0.21 0.42</code></pre>
+</div>
+<div id="gap-filling" class="section level2" number="0.5">
+<h2><span class="header-section-number">0.5</span> Gap filling</h2>
+<p>Missing values are common in raw original data series of
+observations. After the QC process, the number of these missing data is
+increased, and the resulting gaps can affect to further analyses at
+coarser scales (seasonal, annual, etc.). To solve that, a large
+collection of infilling methods exist, most of them based on regression
+algorithms.</p>
+<p>The gap filling process in <strong>reddPrec</strong> uses the nearest
+observations (a number defined by the user) and their associated
+environmental information (which we added to the <em>stations</em>
+data.frame in the “data preparation” section) to compute a Reference
+Value (RV). The RV is computed through a multivariate linear regression
+that uses all those data.</p>
+<p>The function returns a data.frame with different estimates for all
+days of every station:</p>
+<ul>
+<li><strong>wd_pred</strong>: probability (0 to 1) of wet day</li>
+<li><strong>raw_pred</strong>: rainfall prediction (in the original
+units) obtaind from the model</li>
+<li><strong>mod_pred</strong>: modified prediction based on wet day
+probability (if wd_pred&lt;0.5 -&gt; mod_pred = 0)</li>
+<li><strong>st_pred</strong>: standardized prediction (based on
+mod_pred) from selected standardization method (ratio or quantile)</li>
+<li><strong>err</strong>: standard error of the model (in the original
+units)</li>
+<li><strong>neibs</strong>: number of nearest stations (neighbors) used
+in the model. They can vary if a searching threshold (thres) is
+set.</li>
+</ul>
+<pre class="r"><code>gf_res &lt;- gapFilling(prec = qcdata$cleaned, 
+                     sts = stations,
+                     dates = seq.Date(as.Date(&#39;2022-05-01&#39;), as.Date(&#39;2022-05-31&#39;),
+                                      by =&#39;day&#39;), 
+                     stmethod = &#39;ratio&#39;, 
+                     ncpu = 2, 
+                     thres = NA, 
+                     neibs = 10,
+                     coords = c(&#39;lon&#39;,&#39;lat&#39;),
+                     crs = &#39;EPSG:4326&#39;,
+                     coords_as_preds = TRUE,
+                     window = 31)</code></pre>
+<pre><code>## [2024-01-17 07:55:29.476654] - Filling gaps</code></pre>
+<pre><code>## [2024-01-17 07:55:43.014059] - Standardizing final data series</code></pre>
+<pre><code>## [2024-01-17 07:55:43.324543] - END</code></pre>
+<p>Our example doesn’t show any difference between
+<strong>mod_pred</strong> and <strong>st_pred</strong> since we used a
+window of 31 days, which was the complete length of the dataset.</p>
+<p>We can compare, for example, the original data series and their
+reconstructions.</p>
+<pre class="r"><code># daily
+
+plot(gf_res$obs, gf_res$st_pred, xlab = &#39;Observed (mm)&#39;, ylab = &#39;Predicted (mm)&#39;, main = &#39;Daily PCP comparison (all stations)&#39;)
+abline(0,1)
+text(20,200, paste0(&#39;Pearson = &#39;, round(cor(gf_res$obs, gf_res$st_pred, use=&quot;pairwise.complete.obs&quot;),2)))</code></pre>
+<p><img src="man/figures/unnamed-chunk-17-1.png" /><!-- --></p>
+<pre class="r"><code># monthly average (only considering days with observation)
+obs &lt;- gf_res[complete.cases(gf_res),]
+o &lt;- aggregate(obs$obs, by = list(obs$ID), FUN = sum)
+p &lt;- aggregate(obs$st_pred, by = list(obs$ID), FUN = sum)
+plot(o[,2], p[,2], xlab = &#39;Observed (mm)&#39;, ylab = &#39;Predicted (mm)&#39;, main = &#39;Monthly PCP comparison (all stations)&#39;)
+abline(0,1)
+text(20,200, paste0(&#39;Pearson = &#39;, round(cor(o[,2], p[,2], use=&quot;pairwise.complete.obs&quot;),2)))</code></pre>
+<p><img src="man/figures/unnamed-chunk-17-2.png" /><!-- --></p>
+</div>
+<div id="gridding" class="section level2" number="0.6">
+<h2><span class="header-section-number">0.6</span> Gridding</h2>
+<p>The final step creates a gridded product based on the environmental
+variables in raster format. Different inputs can be used as
+observations: (i) the original observations or (ii) the reconstructed
+series. Reconstructed series are recommended due to the neighboring
+stations for all pixels will remain the same in all days of the period.
+Otherwise, some inconsistencies (inhomogeneities) could be imputed to
+the grid and spatially propagated.</p>
+<p>We will use reconstructed series for our example, 15 neighbors with
+no radius limitation. Please consider that, although here the three
+steps (QC, gap filling and gridding) are presented as a workflow, they
+can be run separately, meaning that the options used in gridding can be
+different than gap fillin, for example.</p>
+<p>The gridding process will take a long time depending on multiple
+factors: the grid resolution, the number of days, the number of
+neighbors, and the number of used CPUs, mainly. In our example, we will
+aggregate the grid at a coarser resolution and will reduce the time
+period to two days just to reduce the computing time. (This example
+takes about 3 minutes each day)</p>
+<pre class="r"><code>rec &lt;- data.frame(date = gf_res$date, ID = gf_res$ID, pred = gf_res$st_pred)
+rec &lt;- cast(rec, date~ID)</code></pre>
+<pre><code>## Using pred as value column.  Use the value argument to cast to override this choice</code></pre>
+<pre class="r"><code>rec &lt;- rec[,-1]
+
+env2 &lt;- terra::aggregate(env, 2)
+rec2 &lt;- rec[1:2,]
+
+gridPcp(prec = rec2,
+        grid = env2,
+        sts = stations,
+        dates = seq.Date(as.Date(&#39;2022-05-01&#39;), as.Date(&#39;2022-05-02&#39;),by =&#39;day&#39;),
+        ncpu = 4,
+        thres = NA,
+        neibs = 15,
+        coords = c(&#39;lon&#39;,&#39;lat&#39;),
+        crs = &#39;EPSG:4326&#39;,
+        coords_as_preds = TRUE)</code></pre>
+<pre><code>## [2024-01-17 07:55:43.461083] - Computing day 2022-05-01</code></pre>
+<pre><code>## [2024-01-17 07:57:03.973424] - Computing day 2022-05-02</code></pre>
+<pre><code>## [2024-01-17 07:58:23.712944] - END</code></pre>
+<p>The function creates 2 folders in the working directory, one
+containing the daily grids of precipitation estimates and one containing
+the daily grids of uncertainties (errors of the model)</p>
+<pre class="r"><code>pre &lt;- rast(list.files(&#39;./pred/&#39;, full.names = T))
+err &lt;- rast(list.files(&#39;./err/&#39;, full.names = T))
+
+plot(c(pre[[1]],err[[1]]), breaks = c(0,seq(1,80,5)))</code></pre>
+<p><img src="man/figures/unnamed-chunk-19-1.png" /><!-- --></p>
+<pre class="r"><code>plot(c(pre[[2]],err[[2]]), breaks = c(0,seq(1,80,5)))</code></pre>
+<p><img src="man/figures/unnamed-chunk-19-2.png" /><!-- --></p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

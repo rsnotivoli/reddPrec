@@ -288,13 +288,16 @@ text(20,200, paste0('Pearson = ', round(cor(o[,2], p[,2], use="pairwise.complete
 
 The final step creates a gridded product based on the environmental variables in raster format. Different inputs can be used as observations: (i) the original observations or (ii) the reconstructed series. Reconstructed series are recommended due to the neighboring stations for all pixels will remain the same in all days of the period. Otherwise, some inconsistencies (inhomogeneities) could be imputed to the grid and spatially propagated.
 
-We will use reconstructed series for our example, 15 neighbors with no radius limitation. Please consider that, although here the three steps (QC, gap filling and gridding) are presented as a workflow, they can be run separately, meaning that the options used in gridding can be different than gap fillin, for example.
+We will use reconstructed series for our example, 15 neighbors with no radius limitation. Please consider that, although here the three steps (QC, gap filling and gridding) are presented as a workflow, they can be run separately, meaning that the options used in gridding can be different than gap filling, for example.
 
 The gridding process will take a long time depending on multiple factors: the grid resolution, the number of days, the number of neighbors, and the number of used CPUs, mainly. In our example, we will aggregate the grid at a coarser resolution and will reduce the time period to two days just to reduce the computing time. (This example takes about 3 minutes each day)
 
+A proper gridding of value should use the original observations when available and estimates for those days with missing data. You decide what estimates you will use from the output of gap fillling process. In this case, we will use the *mod_pred* estimate (the one without standardization). Be careful with this choice because sometimes, depending on the available data and other climatic factors, the standardization process could create unrealistic estimates.
 
 ```r
-rec <- data.frame(date = gf_res$date, ID = gf_res$ID, pred = gf_res$st_pred)
+recs <- gf_res$obs
+recs[is.na(recs)] <- gf_res$mod_pred[is.na(recs)]
+rec <- data.frame(date = gf_res$date, ID = gf_res$ID, pred = recs)
 rec <- cast(rec, date~ID)
 ```
 

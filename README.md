@@ -22,6 +22,13 @@ Installation is straightforward since the package is available on CRAN:
 ```r
 install.packages("reddPrec")
 ```
+However, if you want to have the last stable developing version with bugs fixes and other improvements, it can be installed directly from GitHub
+
+```r
+library(devtools)
+install_github("rsnotivoli/reddPrec")
+```
+
 
 ## Preparation of data
 

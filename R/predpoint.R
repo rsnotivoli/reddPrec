@@ -20,7 +20,10 @@ predpoint <- function(can,ref,thres,neibs,covars,n){
   ref <- ref[match(sort(dd)[1:neibs],dd)]
   if (max(ref$val) == 0) {
     pred <- err <- 0
-  } else{
+  } else if (sum(diff(ref$val))==0){
+    pred <- ref$val[1]
+    err <- 0
+    } else{
     # probability of ocurrence prediction
     rr <- as.data.frame(ref)
     rr$val[rr$val > 0] <- 1

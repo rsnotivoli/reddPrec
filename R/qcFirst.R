@@ -80,7 +80,10 @@ qcFirst <- function(x, it, sts, neibs, coords_as_preds = TRUE, coords, crs, qc =
                 pb <- 0
                 p <- 0
               }
-              else{
+              else if (sum(diff(ref$val))==0){
+                pb <- 1
+                p <- ref$val[1]
+              } else{
                 # probability of ocurrence prediction
                 rr <- as.data.frame(ref)
                 rr$val[rr$val > 0] <- 1

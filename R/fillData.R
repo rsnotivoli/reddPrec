@@ -62,6 +62,8 @@
               res[h,6] <- neibs
               if (max(ref$val) == 0) {
                 res[h,2:5] <- 0
+              } else if (sum(diff(ref$val))==0){
+                res[h,2:5] <- c(1,ref$val[1],ref$val[1],0)
               } else{
                 
                 # probability of ocurrence prediction

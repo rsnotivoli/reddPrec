@@ -81,6 +81,9 @@ qcLast <- function(x, y, sts, neibs, coords, crs, coords_as_preds = TRUE, qc = '
             if(max(ref$val) == 0){
               pb <- 0
               p <- 0
+            } else if (sum(diff(ref$val))==0){
+              pb <- 1
+              p <- ref$val[1]
             } else{
                 # probability of ocurrence prediction
                 rr <- as.data.frame(ref)

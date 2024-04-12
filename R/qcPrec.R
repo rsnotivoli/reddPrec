@@ -95,7 +95,7 @@ qcPrec <- function (prec, sts, crs, coords, coords_as_preds = TRUE, neibs = 10, 
   
   b <- foreach(j = 1:nrow(a), .combine=cbind, .export=c("qcLast")) %dopar% {
     qcLast(x = as.numeric(a[j,]), 
-           y = prec[j,],
+           y = as.numeric(prec[j,]),
            sts = sts[,-which(colnames(sts)=='ID')], 
            neibs = neibs,
            coords = coords,

@@ -104,7 +104,7 @@ qcPrec <- function (prec, sts, crs, coords, coords_as_preds = TRUE, neibs = 10, 
            thres = thres,
            qc = qc, qc3 = qc3, qc4 = qc4, qc5 = qc5)
   }
- if(nrow(a)==1){
+ if(is.numeric(b)){
     cleaned <- b[1:nrow(sts)]
     codes <- b[(nrow(sts)+1):length(b)]
   } else{

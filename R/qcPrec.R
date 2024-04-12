@@ -63,7 +63,7 @@ qcPrec <- function (prec, sts, crs, coords, coords_as_preds = TRUE, neibs = 10, 
     message(paste0('[',Sys.time(),'] -', " Iteration ", it, " of quality control"))
     
     a <- foreach(j = 1:nrow(a), .combine=cbind, .export=c("qcFirst")) %dopar% {
-         qcFirst(x = a[j,], 
+         qcFirst(x = as.numeric(a[j,]), 
               it = it, 
               sts = sts[,-which(colnames(sts)=='ID')], 
               neibs = neibs,
@@ -83,14 +83,18 @@ qcPrec <- function (prec, sts, crs, coords, coords_as_preds = TRUE, neibs = 10, 
       seguir <- 0
     }
   }
-  a <- a[,1:(ncol(a)-1)]
-  rownames(a) <- NULL
+  if(nrow(a)==1){
+    a <- t(as.matrix(a[,1:(ncol(a)-1)]))
+  } else{
+    a <- a[,1:(ncol(a)-1)]
+    rownames(a) <- NULL
+    }
   
   #last iteration
   message(paste0('[',Sys.time(),'] -', "Last iteration of quality control"))
   
   b <- foreach(j = 1:nrow(a), .combine=cbind, .export=c("qcLast")) %dopar% {
-    qcLast(x = a[j,], 
+    qcLast(x = as.numeric(a[j,]), 
            y = prec[j,],
            sts = sts[,-which(colnames(sts)=='ID')], 
            neibs = neibs,
@@ -100,10 +104,15 @@ qcPrec <- function (prec, sts, crs, coords, coords_as_preds = TRUE, neibs = 10, 
            thres = thres,
            qc = qc, qc3 = qc3, qc4 = qc4, qc5 = qc5)
   }
-  cleaned <- t(b[1:nrow(sts),])
-  rownames(cleaned) <- NULL
-  codes <- t(b[(nrow(sts)+1):nrow(b),])
-  rownames(codes) <- NULL
+ if(nrow(a)==1){
+    cleaned <- b[1:nrow(sts)]
+    codes <- b[(nrow(sts)+1):length(b)]
+  } else{
+    cleaned <- t(b[1:nrow(sts),])
+    rownames(cleaned) <- NULL
+    codes <- t(b[(nrow(sts)+1):nrow(b),])
+    rownames(codes) <- NULL
+  }
   
   message(paste0('[',Sys.time(),'] -', " End"))
   

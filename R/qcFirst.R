@@ -73,7 +73,7 @@ qcFirst <- function(x, it, sts, neibs, coords_as_preds = TRUE, coords, crs, qc =
           ref <- ref[match(sort(dd)[1:neibs],dd)]
           
           if (max(ref$val) == 0 & can$val > 0) {
-                if(length(grep("1",qc)) code[h] <- 1
+                if(length(grep("1",qc))>0) code[h] <- 1
           }
           else if (min(ref$val) > 0 & can$val == 0) {
                 if(length(grep("2",qc))>0) code[h] <- 2

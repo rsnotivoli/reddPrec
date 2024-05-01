@@ -2,8 +2,8 @@
 #' Quality Control of daily precipitation observations
 
 #' @description This function apply several threshold-based criteria to filter original observations of daily precipitation.
-#' @param prec matrix or data.frame containing the original precipitation data. Each column represents one station. The names of columns have to be names of the stations.
-#' @param sts matrix or data.frame. A column "ID" (unique ID of stations) is required. The rest of the columns (all of them) will act as predictors of the model.
+#' @param prec matrix containing the original precipitation data. Each column represents one station. The names of columns have to be names of the stations.
+#' @param sts data.frame. A column "ID" (unique ID of stations) is required. The rest of the columns (all of them) will act as predictors of the model.
 #' @param crs character. Coordinates system in EPSG format (e.g.: "EPSG:4326").
 #' @param coords vector of two character elements. Names of the fields in "sts" containing longitude and latitude.
 #' @param coords_as_preds logical. If TRUE (default), "coords" are also taken as predictors.

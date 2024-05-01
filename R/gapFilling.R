@@ -1,8 +1,8 @@
 #' Estimating new values in original missing values data series of daily precipitation
 #' 
 #' @description This function uses the neighboring observations to estimate new precipitation values in those days and locations where no records exist.
-#' @param prec matrix or data.frame containing the original (cleaned) precipitation data. Each column represents one station. The names of columns must coincide with the names of the stations.
-#' @param sts matrix or data.frame. A column "ID" (unique ID of stations) is required. The rest of the columns (all of them) will act as predictors of the model.
+#' @param prec matrix containing the original (cleaned) precipitation data. Each column represents one station. The names of columns must coincide with the names of the stations.
+#' @param sts data.frame. A column "ID" (unique ID of stations) is required. The rest of the columns (all of them) will act as predictors of the model.
 #' @param dates vector of class "Date" with all days of observations (yyyy-mm-dd).
 #' @param crs character. Coordinates system in EPSG format (e.g.: "EPSG:4326").
 #' @param coords vector of two character elements. Names of the fields in "sts" containing longitude and latitude.

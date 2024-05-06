@@ -33,7 +33,7 @@ predday <- function(x, grid, sts, neibs, coords, crs, coords_as_preds, date, thr
   covars <- paste(n, collapse='+') # predictors
   
   #check input data
-  ww <- which(is.infinite(x) | is.na(x))
+  ww <- which(is.na(x))
   if(length(ww) > 0){
     x <- x[-ww]
     sts <- sts[-ww,]
@@ -55,7 +55,7 @@ predday <- function(x, grid, sts, neibs, coords, crs, coords_as_preds, date, thr
     writeRaster(re, paste0('./err/',gsub('-','',date),'.tif'),overwrite=TRUE)
   } else{
     
-    ref <- data.frame(sts,val = x)
+    ref <- data.frame(sts,val = as.numeric(x))
     ref <- vect(ref, geom = coords, crs = crs, keepgeom = TRUE)
     grd <- as.points(grid)  
     
@@ -63,7 +63,7 @@ predday <- function(x, grid, sts, neibs, coords, crs, coords_as_preds, date, thr
   j <- NULL
   rr <- foreach(j = 1:length(grd), .combine=cbind) %dopar% {
     predpoint(can = grd[j], ref = ref, thres = thres, neibs = neibs,
-              covars=covars)
+              covars=covars, n=n)
   }
     rr <- t(rr)
     

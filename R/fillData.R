@@ -62,6 +62,8 @@
               res[h,6] <- neibs
               if (max(ref$val) == 0) {
                 res[h,2:5] <- 0
+              } else if (sum(diff(ref$val))==0){
+                res[h,2:5] <- c(1,ref$val[1],ref$val[1],0)
               } else{
                 
                 # probability of ocurrence prediction
@@ -92,8 +94,8 @@
                 p <- predict(fmt, newdata = as.data.frame(can),type = "response")
                 p <- round((p * RANGE) + MINc, 2)
                 
-                # error calculation [COMPROBAR ÚLTIMO TÉRMINO (- 3)]
-                e <- sqrt(sum((rr$val - predict(fmt, type = 'response')) ^ 2)/(length(rr$val) - 3))
+                # error calculation 
+                e <- sqrt(sum((rr$val - predict(fmt, type = 'response')) ^ 2)/(length(rr$val) - length(n)))
                 e <- round((e * RANGE) + MINc, 2)
                 
                 #evaluating estimate

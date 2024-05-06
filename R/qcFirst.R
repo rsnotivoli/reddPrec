@@ -31,7 +31,9 @@ qcFirst <- function(x, it, sts, neibs, coords_as_preds = TRUE, coords, crs, qc =
   if(!coords_as_preds) n <- n[-match(coords,names(sts))]
   covars <- paste(n, collapse='+') # predictors
   
-  if(qc == "all") qc <- as.character(paste0(1:5))
+  if(length(qc)==1){
+    if(qc == "all") qc <- as.character(paste0(1:5))
+    }
     
   w <- which(!is.na(x))
   if(length(w) == 0) { #if no data, ends
@@ -65,22 +67,26 @@ qcFirst <- function(x, it, sts, neibs, coords_as_preds = TRUE, coords, crs, qc =
             }
             if(length(dd)<neibs){
               # message(paste0("Not enough observations within radius"))
-              pb <- p <- NA
+              # pb <- p <- NA
+              return(c(y,cc))
             } else{
           ref <- ref[match(sort(dd)[1:neibs],dd)]
           
           if (max(ref$val) == 0 & can$val > 0) {
-                if(grep("1",qc)>0) code[h] <- 1
+                if(length(grep("1",qc))>0) code[h] <- 1
           }
           else if (min(ref$val) > 0 & can$val == 0) {
-                if(grep("2",qc)>0) code[h] <- 2
+                if(length(grep("2",qc))>0) code[h] <- 2
             }
             else {
               if(max(ref$val) == 0){
                 pb <- 0
                 p <- 0
               }
-              else{
+              else if (sum(diff(ref$val))==0){
+                pb <- 1
+                p <- ref$val[1]
+              } else{
                 # probability of ocurrence prediction
                 rr <- as.data.frame(ref)
                 rr$val[rr$val > 0] <- 1
@@ -112,12 +118,13 @@ qcFirst <- function(x, it, sts, neibs, coords_as_preds = TRUE, coords, crs, qc =
             }
           }
 
-          if(is.na(pb) | is.na(p)){
-            code[h] <- NA
-          } else{
+          # if(is.na(pb) | is.na(p)){
+          #   code[h] <- NA
+          # } else{
+          if(is.na(code[h])){
                 #evaluating outliers
                 if (can$val == 0 & pb > 0.5) {
-                  if(grep("3",qc)>0){
+                  if(length(grep("3",qc))>0){
                     if ((max((can$val + 0.1)/(p + 0.1), 
                              (p + 0.1)/(can$val + 0.1))) > qc3) {
                       code[h] <- 3
@@ -125,7 +132,7 @@ qcFirst <- function(x, it, sts, neibs, coords_as_preds = TRUE, coords, crs, qc =
                   }
                 }
                 if (can$val > 0) {
-                  if(grep("3",qc)>0){
+                  if(length(grep("3",qc))>0){
                     if ((max((can$val + 0.1)/(p + 0.1), # 0.1 avoids problems with zeros
                              (p + 0.1)/(can$val + 0.1))) > qc3) {
                       code[h] <- 3
@@ -135,12 +142,12 @@ qcFirst <- function(x, it, sts, neibs, coords_as_preds = TRUE, coords, crs, qc =
                 
                 #evaluating suspect dry
                 if (can$val == 0 & pb > qc4[1] & p > qc4[2]) {
-                  if(grep("4",qc)>0) code[h] <- 4
+                  if(length(grep("4",qc))>0) code[h] <- 4
                 }
                 
                 #evaluating suspect wet
                 if (can$val > qc5[3] & pb < qc5[1] & p < qc5[2]) {
-                  if(grep("5",qc)>0) code[h] <- 5
+                  if(length(grep("5",qc))>0) code[h] <- 5
                 }
           }
         } # end of calculations for all observations

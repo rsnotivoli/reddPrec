@@ -11,7 +11,7 @@
 #' @noRd
 #' 
 
-predpoint <- function(can,ref,thres,neibs,covars){
+predpoint <- function(can,ref,thres,neibs,covars,n){
   #set nearest observations
   dd <- terra::distance(can,ref)/1000
   if(!is.na(thres)){ 
@@ -20,7 +20,10 @@ predpoint <- function(can,ref,thres,neibs,covars){
   ref <- ref[match(sort(dd)[1:neibs],dd)]
   if (max(ref$val) == 0) {
     pred <- err <- 0
-  } else{
+  } else if (sum(diff(ref$val))==0){
+    pred <- ref$val[1]
+    err <- 0
+    } else{
     # probability of ocurrence prediction
     rr <- as.data.frame(ref)
     rr$val[rr$val > 0] <- 1
@@ -47,8 +50,8 @@ predpoint <- function(can,ref,thres,neibs,covars){
     p <- predict(fmt, newdata = as.data.frame(can),type = "response")
     p <- round((p * RANGE) + MINc, 2)
     
-    # error calculation [COMPROBAR ÚLTIMO TÉRMINO (- 3)]
-    e <- sqrt(sum((rr$val - predict(fmt, type = 'response')) ^ 2)/(length(rr$val) - 3))
+    # error calculation
+    e <- sqrt(sum((rr$val - predict(fmt, type = 'response')) ^ 2)/(length(rr$val) - length(n)))
     e <- round((e * RANGE) + MINc, 2)
     
     #evaluating estimate

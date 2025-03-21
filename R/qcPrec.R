@@ -1,9 +1,9 @@
-
 #' Quality Control of daily precipitation observations
 
 #' @description This function apply several threshold-based criteria to filter original observations of daily precipitation.
 #' @param prec matrix containing the original precipitation data. Each column represents one station. The names of columns have to be names of the stations.
 #' @param sts data.frame. A column "ID" (unique ID of stations) is required. The rest of the columns (all of them) will act as predictors of the model.
+#' @param model_fun function. A function that integrates the statistical hybrid model (classification and regression). The default is learner_glm, which is the original model. Other models are also available (learner_rf and learner_xgboost). Users can create their functions with different models as well.
 #' @param crs character. Coordinates system in EPSG format (e.g.: "EPSG:4326").
 #' @param coords vector of two character elements. Names of the fields in "sts" containing longitude and latitude.
 #' @param coords_as_preds logical. If TRUE (default), "coords" are also taken as predictors.
@@ -41,7 +41,7 @@
 #'str(qcdata)
 #'}
 
-qcPrec <- function (prec, sts, crs, coords, coords_as_preds = TRUE, neibs = 10, thres = NA,
+qcPrec <- function (prec, sts, model_fun = learner_glm, crs, coords, coords_as_preds = TRUE, neibs = 10, thres = NA,
                     qc = 'all', qc3 = 10, qc4 = c(0.99, 5), qc5 = c(0.01, 0.1, 5), ncpu = 1) 
 {
   
@@ -65,7 +65,8 @@ qcPrec <- function (prec, sts, crs, coords, coords_as_preds = TRUE, neibs = 10, 
     a <- foreach(j = 1:nrow(a), .combine=cbind, .export=c("qcFirst")) %dopar% {
          qcFirst(x = as.numeric(a[j,]), 
               it = it, 
-              sts = sts[,-which(colnames(sts)=='ID')], 
+              sts = sts[,-which(colnames(sts)=='ID')],
+              model_fun = model_fun,
               neibs = neibs,
               coords = coords,
               crs = crs,
@@ -96,7 +97,8 @@ qcPrec <- function (prec, sts, crs, coords, coords_as_preds = TRUE, neibs = 10, 
   b <- foreach(j = 1:nrow(a), .combine=cbind, .export=c("qcLast")) %dopar% {
     qcLast(x = as.numeric(a[j,]), 
            y = as.numeric(prec[j,]),
-           sts = sts[,-which(colnames(sts)=='ID')], 
+           sts = sts[,-which(colnames(sts)=='ID')],
+           model_fun = model_fun,
            neibs = neibs,
            coords = coords,
            crs = crs,

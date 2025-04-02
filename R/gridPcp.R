@@ -49,7 +49,7 @@
 #' sts <- data.frame(ID = paste0('sts_',1:25), as.data.frame(terra::spatSample(grid, 25)))
 #' 
 #' 
-#' gridPcp(preci = prec, 
+#' gridPcp(prec = prec, 
 #'         grid = grid, 
 #'         sts = sts, 
 #'         model_fun = learner_glm, 
@@ -117,6 +117,8 @@ gridPcp <- function (prec, grid, dyncovars= NULL, sts, model_fun, dates, ncpu, t
         dcovs <- dcovs[, -1]
         # merge values at stations
         stsm <- cbind(sts, dcovs)
+      } else{
+        stsm <-sts
       }
       
       predday(x = prec[i,], 

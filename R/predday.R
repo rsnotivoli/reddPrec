@@ -11,14 +11,15 @@
 #' @param coords_as_preds logical. If TRUE (default), "coords" are also taken as predictors.
 #' @param date value of class "Date"
 #' @param thres numeric. Maximum radius (in km) where neighboring stations will be searched. NA value uses the whole spatial domain.
+#' @param dir_name character. Name of the of the folder in which the data will be saved. Default NA uses the original names.
 #' @importFrom foreach foreach %dopar%
 #' @importFrom terra vect rast crds writeRaster as.points
 #' @noRd
 #' 
-predday <- function(x, grid, sts, model_fun, neibs, coords, crs, coords_as_preds, date, thres) {
+predday <- function(x, grid, sts, model_fun, neibs, coords, crs, coords_as_preds, date, thres, dir_name) {
   
-  dir.create('pred', showWarnings = FALSE)
-  dir.create('err', showWarnings = FALSE)
+  dir.create(paste0("pred", ifelse(is.na(dir_name), "", paste0("_", dir_name))), showWarnings = FALSE)
+  dir.create(paste0("err", ifelse(is.na(dir_name), "", paste0("_", dir_name))), showWarnings = FALSE)
   
   n <- names(sts)
   if(!coords_as_preds) n <- n[-match(coords,names(sts))]
@@ -74,8 +75,8 @@ predday <- function(x, grid, sts, model_fun, neibs, coords, crs, coords_as_preds
     rp <- terra::rast(cbind(terra::crds(grid),rr[,1]), type="xyz", crs=crs)
     re <- terra::rast(cbind(terra::crds(grid),rr[,2]), type="xyz", crs=crs)
     names(rp) <- names(re) <- date
-    terra::writeRaster(rp, paste0('./pred/',gsub('-','',date),'.tif'),overwrite=TRUE)
-    terra::writeRaster(re, paste0('./err/',gsub('-','',date),'.tif'),overwrite=TRUE)
+    terra::writeRaster(rp, paste0(paste0("./pred", ifelse(is.na(dir_name), "", paste0("_", dir_name)), "/"), gsub('-','',date),'.tif'), overwrite = TRUE)
+    terra::writeRaster(re, paste0(paste0("./err", ifelse(is.na(dir_name), "", paste0("_", dir_name)), "/"), gsub('-','',date),'.tif'), overwrite = TRUE)
     
   }
   

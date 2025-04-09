@@ -35,11 +35,14 @@
 #' foo <- alt
 #' terra::values(foo) <- runif(length(terra::values(alt)))
 #' dyncovars1 <- rep(foo, 7)
-#' names(dyncovars1) <- paste('dynvar1.day',1:terra::nlyr(dyncovars1), sep = "_") # not use blank space!
+#' names(dyncovars1) <- paste('dynvar1.day',1:terra::nlyr(dyncovars1), 
+#'                       sep = "_") # not use blank space!
 #' dyncovars2 <- dyncovars1*0.0234
-#' names(dyncovars2) <- paste('dynvar2.day',1:terra::nlyr(dyncovars2), sep = "_") # not use blank space!
+#' names(dyncovars2) <- paste('dynvar2.day',1:terra::nlyr(dyncovars2), 
+#'                       sep = "_") # not use blank space!
 #' dyncovars3 <- dyncovars1*10502
-#' names(dyncovars3) <- paste('dynvar3.day',1:terra::nlyr(dyncovars3), sep = "_") # not use blank space!
+#' names(dyncovars3) <- paste('dynvar3.day',1:terra::nlyr(dyncovars3), 
+#'                       sep = "_") # not use blank space!
 #' dyncovars <- terra::sds(dyncovars1, dyncovars2, dyncovars3)
 #'  
 #' # precipitation and stations generation

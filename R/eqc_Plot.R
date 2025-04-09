@@ -195,7 +195,7 @@ eqc_Plot <- function(xts_obj) {
       list(superpose.polygon = list(col = c("red", "gray50")))
       ),
     panel = function(...) {
-      lattice:::panel.barchart(...)
+      lattice::panel.barchart(...)
       args <- list(...)
       lattice::panel.text(
         args$x, args$y + 0.02,

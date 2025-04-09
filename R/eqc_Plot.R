@@ -7,6 +7,7 @@
 #' @importFrom lattice xyplot barchart panel.barchart panel.text panel.abline
 #' @importFrom grid textGrob gpar grid.draw
 #' @importFrom gridExtra grid.arrange
+#' @importFrom reshape2 melt
 #' @details
 #' Six plots are built based on daily precipitation: time series, truncation, time series (threshold = 5 mm), small gaps, precision and rounding patterns and weekly cycle.
 #' These provide a visual inspection (Hunziker et al., 2017) but also how the automatic application  (Huerta et al., 2020) of the enhanced quality control is applied. 

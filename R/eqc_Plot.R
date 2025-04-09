@@ -142,7 +142,7 @@ eqc_Plot <- function(xts_obj) {
   
   xts_small_gaps_plt <- data.frame(Date = time(xts_small_gaps_plt),
                                    coredata(xts_small_gaps_plt))
-  xts_small_gaps_plt <- reshape::melt(xts_small_gaps_plt, id.vars = "Date")
+  xts_small_gaps_plt <- reshape2::melt(xts_small_gaps_plt, id.vars = "Date")
   
   xts_small_gaps_plt <- lattice::xyplot(
     value ~ Date, data = xts_small_gaps_plt,

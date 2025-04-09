@@ -7,18 +7,18 @@
 #' 
 
 get_wd_fraction <- function(xts_obj) {
-
+  week <- NULL
   original_locale <- Sys.getlocale("LC_TIME")  # Save the current locale
   Sys.setlocale("LC_TIME", "C")  # Set locale to English
   
   out_df <- data.frame(
     value = as.numeric(xts_obj),
-    week = weekdays(time(xts_obj))
+    week = base::weekdays(stats::time(xts_obj))
   )
   
   out_df_wd <- out_df[out_df$value >= 0.1, ]
   
-  length_values <- aggregate(
+  length_values <- stats::aggregate(
     value ~ week, data = out_df,
     function(x) length(x[!is.na(x)]), na.action = NULL
   )
@@ -26,7 +26,7 @@ get_wd_fraction <- function(xts_obj) {
   if (all(is.na(out_df_wd$value))) {
     lenght_wd <- length_values
   } else {
-    lenght_wd <- aggregate(
+    lenght_wd <- stats::aggregate(
       value ~ week, data = out_df_wd,
       function(x) length(x[!is.na(x)]), na.action = NULL
     )
@@ -51,7 +51,7 @@ get_wd_fraction <- function(xts_obj) {
     out_df$bin_test <- factor(NA, levels = c("Rejected Ho", "No Rejected Ho"))
   } else {
     for (i in 1:nrow(out_df)) {
-      test_bt <- binom.test(
+      test_bt <- stats::binom.test(
         out_df$count_wd[i], out_df$count[i],
         p = sum(out_df$count_wd) / sum(out_df$count),
         alternative = "two.sided", conf.level = 0.95

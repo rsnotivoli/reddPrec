@@ -62,7 +62,7 @@ apply_absolute_correction <- function(target,
                                       wet_day) {
   
   # Creating list of windows dates blocks
-  dailyVar <- sort(unique(format(time(target), format = "%m-%d")))
+  dailyVar <- sort(unique(format(stats::time(target), format = "%m-%d")))
   tail0 <- dailyVar[(length(dailyVar) - window_c + 1):length(dailyVar)]
   tail1 <- dailyVar[1:window_c]
   dailyVar <- c(tail0, dailyVar, tail1)
@@ -79,7 +79,7 @@ apply_absolute_correction <- function(target,
         
         target_date <- dailyVar[[jx]]
         target_time_serie <- target[
-          format(time(target), "%m-%d") %in% target_date
+          format(stats::time(target), "%m-%d") %in% target_date
         ]
         # dividing sample after and before break
         model <- target_time_serie[
@@ -90,7 +90,7 @@ apply_absolute_correction <- function(target,
         ]
         # sample for creating the distribution
         model2transf <- model[
-          format(time(model), "%m-%d") %in% target_date[window_c + 1]
+          format(stats::time(model), "%m-%d") %in% target_date[window_c + 1]
         ]
         
         res_out <- tryCatch({
@@ -116,7 +116,7 @@ apply_absolute_correction <- function(target,
     )
   
   hmg_target_before_break <- do.call(rbind, hmg_target_before_break)
-  target[time(hmg_target_before_break)] <- hmg_target_before_break
+  target[stats::time(hmg_target_before_break)] <- hmg_target_before_break
   
   return(target)
   
@@ -143,7 +143,7 @@ quantile_matching_absolute <- function(model,
   quantiles_obs <- compute_quantiles(obs4, quantiles_range[1])
   quantiles_model <- compute_quantiles(model4, quantiles_range[1])
   
-  matching_model <- approxfun(x = quantiles_model,
+  matching_model <- stats::approxfun(x = quantiles_model,
                               y = quantiles_obs,
                               method = "linear",
                               ties = "ordered")
@@ -153,7 +153,7 @@ quantile_matching_absolute <- function(model,
   zoo::coredata(model2transf4) <- model2transf4_transf_pp
   
   new_model2transf <- model2transf
-  new_model2transf[time(model2transf4)] <- model2transf4
+  new_model2transf[stats::time(model2transf4)] <- model2transf4
   
   return(new_model2transf)
 }
@@ -166,7 +166,7 @@ apply_relative_correction <- function(target,
                                       wet_day) {
   
   # Creating list of windows dates blocks
-  dailyVar <- sort(unique(format(time(target), format = "%m-%d")))
+  dailyVar <- sort(unique(format(stats::time(target), format = "%m-%d")))
   tail0 <- dailyVar[(length(dailyVar) - window_c + 1):length(dailyVar)]
   tail1 <- dailyVar[1:window_c]
   dailyVar <- c(tail0, dailyVar, tail1)
@@ -184,10 +184,10 @@ apply_relative_correction <- function(target,
         target_date <- dailyVar[[jx]]
         # getting sample after and before break for both target and nearby
         target_time_serie <- target[
-          format(time(target), "%m-%d") %in% target_date
+          format(stats::time(target), "%m-%d") %in% target_date
         ]
         nearby_time_serie <- nearby[
-          format(time(target), "%m-%d") %in% target_date
+          format(stats::time(target), "%m-%d") %in% target_date
         ]
         
         # sample for creating the distribution after and before break for both target and nearby
@@ -198,7 +198,7 @@ apply_relative_correction <- function(target,
           paste(as.character(year_of_break + 1), "/", sep = "")
         ]
         model_target2transf <- model_target[
-          format(time(model_target), "%m-%d") %in% target_date[window_c + 1]
+          format(stats::time(model_target), "%m-%d") %in% target_date[window_c + 1]
         ]
         
         model_nearby <- nearby_time_serie[
@@ -233,7 +233,7 @@ apply_relative_correction <- function(target,
     )
   
   hmg_target_before_break <- do.call(rbind, hmg_target_before_break)
-  target[time(hmg_target_before_break)] <- hmg_target_before_break
+  target[stats::time(hmg_target_before_break)] <- hmg_target_before_break
   
   return(target)
   
@@ -304,7 +304,7 @@ quantile_matching_relative <- function(model_target,
     }
   )
   
-  moving_median_vect <- apply(moving_a_vect, 1, median)
+  moving_median_vect <- apply(moving_a_vect, 1, stats::median)
   
   # at this part I could check the a_vect
   
@@ -322,7 +322,7 @@ quantile_matching_relative <- function(model_target,
     y = moving_median_vect,
     x = as.numeric(gsub("[\\%,]", "", names(quantiles_obs_target)))
   )
-  a_vect_interpolated <- approx(
+  a_vect_interpolated <- stats::approx(
     a_vect$x, a_vect$y, xout = 1:100, method = "linear", ties = "ordered"
   )$y
   a_vect_interpolated_smoothed <- zoo::rollapply(
@@ -339,7 +339,7 @@ quantile_matching_relative <- function(model_target,
   # at this part I could ensure no negative slopes
   # now it not needeed, but it could be useful in the future
   
-  matching_model <- approxfun(x = quantiles_model_target_100,
+  matching_model <- stats::approxfun(x = quantiles_model_target_100,
                               y = quantiles_model_target_100_c,
                               method = "linear",
                               ties = "ordered")
@@ -349,7 +349,7 @@ quantile_matching_relative <- function(model_target,
   zoo::coredata(model2transf_nona_target) <- model2transf4_transf_pp
   
   new_model2transf <- model_target2transf
-  new_model2transf[time(model2transf_nona_target)] <- model2transf_nona_target
+  new_model2transf[stats::time(model2transf_nona_target)] <- model2transf_nona_target
   
   return(new_model2transf)
   

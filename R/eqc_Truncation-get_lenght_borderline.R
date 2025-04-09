@@ -13,12 +13,12 @@ get_lenght_borderline <- function(xts_obj) {
   border_line <- get_ts_borderline(xts_obj = xts_obj)
   
   # Remove missing values
-  border_line_nona <- border_line[complete.cases(border_line)]
+  border_line_nona <- border_line[stats::complete.cases(border_line)]
   
   # Create a data frame with the borderline values and corresponding years
   border_line_df <- data.frame(
     value = factor(as.numeric(border_line_nona)),
-    year = as.numeric(format(time(border_line_nona), "%Y"))
+    year = as.numeric(format(stats::time(border_line_nona), "%Y"))
   )
   
   # Reshape the data frame to get the count of each value by year

@@ -70,7 +70,7 @@ qcFirst <- function(x, it, sts, model_fun, neibs, coords_as_preds = TRUE, coords
             if(length(dd)<neibs){
               # message(paste0("Not enough observations within radius"))
               # pb <- p <- NA
-              return(c(y,cc))
+              return(c(x, 0))
             } else{
           ref <- ref[match(sort(dd)[1:neibs],dd)]
           

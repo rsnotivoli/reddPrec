@@ -10,7 +10,7 @@ hmg_indices_ts <- function(target_data) {
   }
   
   # Split data by months
-  months <- format(time(target_data), "%m")
+  months <- format(stats::time(target_data), "%m")
   data_aprsep <- target_data[months %in% aprsep_months]
   data_octmar <- target_data[months %in% octmar_months]
  

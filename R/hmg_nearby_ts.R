@@ -17,7 +17,7 @@ hmg_nearby_ts <- function(target, sts, neibs_max = NULL, thres = NULL) {
   
   # Select nearest neighbors (ensuring it doesn't exceed available stations)
   filtered_sts <- filtered_sts[1:(neibs_max + 1), ]
-  filtered_sts <- filtered_sts[complete.cases(filtered_sts), ]
+  filtered_sts <- filtered_sts[stats::complete.cases(filtered_sts), ]
   
   filtered_sts <- as.character(filtered_sts$ID)
 

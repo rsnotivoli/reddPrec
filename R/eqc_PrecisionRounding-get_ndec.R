@@ -8,7 +8,7 @@ get_ndec <- function(xts_obj, lmn_yday, toPlot = FALSE) {
   
   # Create a data frame with 'year' and 'dec' (factor of decimals)
   out_df <- data.frame(
-    year = as.numeric(format(time(xts_obj), "%Y")),
+    year = as.numeric(format(stats::time(xts_obj), "%Y")),
     dec = factor(
       w,
       levels = seq(9, 0, -1),
@@ -23,7 +23,7 @@ get_ndec <- function(xts_obj, lmn_yday, toPlot = FALSE) {
   } else {
     
     # Remove rows with missing values
-    out_df <- out_df[complete.cases(out_df), ]
+    out_df <- out_df[stats::complete.cases(out_df), ]
     
     # Reshape the data to wide format, counting occurrences of each decimal level
     out <- reshape2::dcast(out_df, year ~ dec,

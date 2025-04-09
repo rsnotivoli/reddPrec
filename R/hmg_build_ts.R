@@ -17,7 +17,7 @@ hmg_build_ts <- function(target_nearby,
   out_xts_yearly <- do.call(cbind, out_xts_yearly)
   
   # Correlation based on yearly totals (originally was at daily values)
-  cor_test <- cor(out_xts_yearly)[1, -1] > cor_neibs
+  cor_test <- stats::cor(out_xts_yearly)[1, -1] > cor_neibs
   cor_test <- cor_test[cor_test == 1]
   
   n_stations <- sum(cor_test, na.rm = TRUE)

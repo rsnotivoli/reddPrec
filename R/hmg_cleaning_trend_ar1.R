@@ -15,12 +15,12 @@ hmg_cleaning_trend_ar1 <- function(time_serie, p_value = 0.05){
   
   #  Apply AR(1) removal
   sample_value <- as.numeric(time_serie)
-  dwt_res <- car::durbinWatsonTest(lm(sample_value ~ 1), max.lag = 1)
+  dwt_res <- car::durbinWatsonTest(stats::lm(sample_value ~ 1), max.lag = 1)
   
   # removing AR1 if dwt_res$p < p_value
   if (dwt_res$p < p_value) {
     
-    ar_model <- arima(sample_value, order = c(1, 0, 0))
+    ar_model <- stats::arima(sample_value, order = c(1, 0, 0))
     res <- as.numeric(ar_model$residual)
     zoo::coredata(time_serie) <- res
     

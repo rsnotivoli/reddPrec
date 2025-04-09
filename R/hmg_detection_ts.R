@@ -17,7 +17,7 @@ hmg_detection_ts <- function(target_data, cleaning, neibs_min, perc_break){
   
   # Combine results and remove incomplete cases
   out <- do.call(rbind, out)
-  out <- out[complete.cases(out), ]
+  out <- out[stats::complete.cases(out), ]
   
   # Extract break year
   break_year <- get_break_year(detection_results_output = out, perc_break = perc_break)
@@ -112,7 +112,7 @@ apply_break_detection <- function(time_series, cleaning, neibs_min) {
 break_detection_tests <- function(time_serie, p_value = 0.05) {
   
   # Check if all values are the same
-  if (identical(var(as.numeric(time_serie)), 0)) {
+  if (identical(stats::var(as.numeric(time_serie)), 0)) {
     return(data.frame(
       test = "No test",
       breaks = NA,
@@ -140,7 +140,7 @@ break_detection_tests <- function(time_serie, p_value = 0.05) {
   }))
   
   # Extract break year
-  res$year_break <- as.numeric(format(time(time_serie)[res$breaks], "%Y"))
+  res$year_break <- as.numeric(format(stats::time(time_serie)[res$breaks], "%Y"))
   
   # Significance column
   res$sig <- as.integer(res$p.value >= p_value)  # 1 if p >= p_value, 0 otherwise

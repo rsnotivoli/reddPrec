@@ -35,6 +35,10 @@
 
 eqc_Plot <- function(xts_obj) {
   
+  variable <- NULL
+  bin_test <- NULL
+  dec <- NULL
+  
   if (is.null(xts_obj) || all(is.na(xts_obj))) {
     stop("Error: The xts object is NULL or completely NA.")
   }
@@ -85,8 +89,8 @@ eqc_Plot <- function(xts_obj) {
   xts_ts_plt <- lattice::xyplot(
     xts_obj, type = "p", cex = .1, pch = 19, col = "black",
     xlab = "", ylab = "(mm)", main = "time series",
-    xlim = c(time(xts_obj)[1] - 1*365,
-             time(xts_obj)[length(time(xts_obj))] + 1*365),
+    xlim = c(stats::time(xts_obj)[1] - 1*365,
+             stats::time(xts_obj)[length(stats::time(xts_obj))] + 1*365),
     ylim = c(min(xts_obj, na.rm = TRUE), max(xts_obj, na.rm = TRUE)),
     par.settings = theme.novpadding,
     scales = list(y = list(rot = 90))
@@ -100,8 +104,8 @@ eqc_Plot <- function(xts_obj) {
   xts_trunc <- lattice::xyplot(
     xts_trunc, type = "l", cex = .1, pch = 19, col = "red", lwd = 3,
     xlab = "", ylab = "(mm)", main = "truncation",
-    xlim = c(time(xts_trunc)[1] - 1*365,
-             time(xts_trunc)[length(time(xts_trunc))] + 1*365),
+    xlim = c(stats::time(xts_trunc)[1] - 1*365,
+             stats::time(xts_trunc)[length(stats::time(xts_trunc))] + 1*365),
     par.settings = theme.novpadding,
     scales = list(y = list(rot = 90))
   )
@@ -111,8 +115,8 @@ eqc_Plot <- function(xts_obj) {
   xts_ts_thrs_plt <- lattice::xyplot(
     xts_obj, type = "p", cex = .1, pch = 19, ylim = c(0, 5), col = "black",
     xlab = "", ylab = "(mm)", main = "time series (threshold = 5 mm)",
-    xlim = c(time(xts_obj)[1] - 1*365,
-             time(xts_obj)[length(time(xts_obj))] + 1*365),
+    xlim = c(stats::time(xts_obj)[1] - 1*365,
+             stats::time(xts_obj)[length(stats::time(xts_obj))] + 1*365),
     par.settings = theme.novpadding,
     scales = list(y = list(rot = 90))
   )
@@ -140,7 +144,7 @@ eqc_Plot <- function(xts_obj) {
     ymin <- 0 * 1.05
   }
   
-  xts_small_gaps_plt <- data.frame(Date = time(xts_small_gaps_plt),
+  xts_small_gaps_plt <- data.frame(Date = stats::time(xts_small_gaps_plt),
                                    coredata(xts_small_gaps_plt))
   xts_small_gaps_plt <- reshape2::melt(xts_small_gaps_plt, id.vars = "Date")
   

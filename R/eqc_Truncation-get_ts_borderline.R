@@ -9,7 +9,7 @@
 get_ts_borderline <- function(xts_obj) {
   
   # Remove rows with missing values
-  xts_obj1 <- xts_obj[complete.cases(xts_obj)]
+  xts_obj1 <- xts_obj[stats::complete.cases(xts_obj)]
   
   # Apply rolling window to find the maximum value with a window size of 180
   border_filter <- zoo::rollapply(
@@ -33,7 +33,7 @@ get_ts_borderline <- function(xts_obj) {
   border_filter <- zoo::rollapply(
     border_filter,
     width = 180 * 1,
-    FUN = function(x) median(x, na.rm = TRUE),
+    FUN = function(x) stats::median(x, na.rm = TRUE),
     align = "center",
     partial = TRUE
   )

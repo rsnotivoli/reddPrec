@@ -15,7 +15,8 @@
 #' @param mm_apply_qc numeric. Precipitation threshold in which apply_qc would be applied. Set to 0 as default, meaning that only the adjustment will be on wet days (> 0 mm)
 #' @param ncpu number of processor cores used to parallel computing.
 #' @export
-#' @importFrom xts xts apply.yearly coredata rollapply
+#' @importFrom xts xts apply.yearly
+#' @importFrom zoo coredata rollapply
 #' @importFrom geosphere distHaversine
 #' @importFrom Kendall MannKendall
 #' @importFrom pracma detrend

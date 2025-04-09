@@ -12,6 +12,7 @@
 #' @param coords_as_preds logical. If TRUE (default), "coords" are also taken as predictors.
 #' @param neibs integer. Number of nearest neighbors to use.
 #' @param thres numeric. Maximum radius (in km) where neighboring stations will be searched. NA value uses the whole spatial domain.
+#' @param dir_name character. Name of the of the folder in which the data will be saved. Default NA uses the original names.
 #' @param ncpu number of processor cores used to parallel computing.
 #' @details
 #' All the rasters provided in "grid" and "dyncovars" must have the same spatial characteristics (resolution, crs, extent, etc.).
@@ -34,11 +35,11 @@
 #' foo <- alt
 #' terra::values(foo) <- runif(length(terra::values(alt)))
 #' dyncovars1 <- rep(foo, 7)
-#' names(dyncovars1) <- paste('dynvar1.day',1:terra::nlyr(dyncovars1))
+#' names(dyncovars1) <- paste('dynvar1.day',1:terra::nlyr(dyncovars1), sep = "_") # not use blank space!
 #' dyncovars2 <- dyncovars1*0.0234
-#' names(dyncovars2) <- paste('dynvar2.day',1:terra::nlyr(dyncovars2))
+#' names(dyncovars2) <- paste('dynvar2.day',1:terra::nlyr(dyncovars2), sep = "_") # not use blank space!
 #' dyncovars3 <- dyncovars1*10502
-#' names(dyncovars3) <- paste('dynvar3.day',1:terra::nlyr(dyncovars3))
+#' names(dyncovars3) <- paste('dynvar3.day',1:terra::nlyr(dyncovars3), sep = "_") # not use blank space!
 #' dyncovars <- terra::sds(dyncovars1, dyncovars2, dyncovars3)
 #'  
 #' # precipitation and stations generation
@@ -65,8 +66,8 @@
 #' terra::plot(r)
 #' }
 
-gridPcp <- function (prec, grid, dyncovars= NULL, sts, model_fun, dates, ncpu, thres, neibs,
-                     coords, crs, coords_as_preds){
+gridPcp <- function (prec, grid, dyncovars = NULL, sts, model_fun, dates, ncpu, thres, neibs,
+                     coords, crs, coords_as_preds, dir_name = NA){
   
   # checks
   m <- match(colnames(prec), sts$ID)
@@ -85,7 +86,8 @@ gridPcp <- function (prec, grid, dyncovars= NULL, sts, model_fun, dates, ncpu, t
             neibs = neibs, coords = coords, crs = crs,
             coords_as_preds = coords_as_preds,
             date = dates,
-            thres = thres)
+            thres = thres,
+            dir_name = dir_name)
   }
   
   # multiple days
@@ -107,28 +109,34 @@ gridPcp <- function (prec, grid, dyncovars= NULL, sts, model_fun, dates, ncpu, t
         st <- terra::vect(sts, geom = coords, crs = crs)
         n <- length(terra::varnames(dyncovars))
         dcovs <- NA
-        for(i in 1:n){
-          sel <- dyncovars[[i]][[which(terra::time(dyncovars[[i]]) == date)]]
-          # merge rasters
-          grid <- c(grid, sel) 
+        dgrid <- list()
+        for(ij in 1:n){
+          sel <- dyncovars[[ij]][[which(terra::time(dyncovars[[ij]]) %in% date)]]
+          # saving rasters
+          dgrid[[ij]] <- sel
           # extract values to stations
-          dcovs <- cbind(dcovs,terra::extract(x = sel, y = st, ID=F))
+          dcovs <- cbind(dcovs, terra::extract(x = sel, y = st, ID = FALSE))
         }
         dcovs <- dcovs[, -1]
-        # merge values at stations
+        dgrid <- do.call(c, dgrid)
+        # merge values at stations / adding temporal spatial fields
         stsm <- cbind(sts, dcovs)
+        gridm <- c(grid, dgrid)
+
       } else{
-        stsm <-sts
+        stsm <- sts
+        gridm <- grid
       }
-      
-      predday(x = prec[i,], 
-              grid = grid, 
-              sts = stsm[,-which(colnames(sts)=='ID')],
+
+      predday(x = prec[i,],
+              grid = gridm,
+              sts = stsm[, -which(colnames(stsm)=='ID')],
               model_fun = model_fun,
               neibs = neibs, coords = coords, crs = crs,
               coords_as_preds = coords_as_preds,
               date = date,
-              thres = thres)
+              thres = thres,
+              dir_name = dir_name)
     }
   }
   

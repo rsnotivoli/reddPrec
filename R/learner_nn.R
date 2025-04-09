@@ -51,8 +51,6 @@ learner_nn <- function(ref, can, covars) {
   # probability of ocurrence prediction
   #####################################
 
-  covars <- strsplit(covars,'+',fixed=T)[[1]]
-  
   rr <- as.data.frame(ref)
   rr$val[rr$val > 0] <- 1
   rr$val <- factor(rr$val, levels = c(0, 1))

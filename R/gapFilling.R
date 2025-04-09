@@ -15,7 +15,7 @@
 #' @param ncpu number of processor cores used to parallel computing.
 #' @export
 #' @importFrom foreach foreach %dopar%
-#' @importFrom reshape melt cast
+#' @importFrom reshape2 melt cast
 #' @importFrom doParallel registerDoParallel
 #' @details
 #' After the gap filling, "stmethod" allows for an standardization of the predictions based on the observations.
@@ -83,7 +83,7 @@ gapFilling <- function(prec, sts, model_fun = learner_glm, dates, stmethod = NUL
   message(paste0('[',Sys.time(),'] -', " Standardizing final data series"))
   
   bb <- a[,c('date','ID','mod_pred')]
-  prec_pred <- suppressMessages(reshape::cast(bb,date~ID)[,-1])
+  prec_pred <- suppressMessages(reshape2::cast(bb,date~ID)[,-1])
   prec_pred <- prec_pred[,match(colnames(prec),colnames(prec_pred))]
   
   pred <- foreach(j = 1:ncol(prec_pred), .combine=cbind, .export=c("standardization","stand_qq")) %dopar% {
@@ -96,7 +96,7 @@ gapFilling <- function(prec, sts, model_fun = learner_glm, dates, stmethod = NUL
   }
   colnames(pred) <- colnames(prec_pred)
   pred <- data.frame(date = dates, pred, check.names = FALSE)
-  pred <- reshape::melt(pred, id.vars = 'date')
+  pred <- reshape2::melt(pred, id.vars = 'date')
   pred <- pred[order(pred$date),]
   
   a <- data.frame(a[,1:6], st_pred = pred$value, a[,7:8])

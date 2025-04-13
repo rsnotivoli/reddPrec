@@ -1,6 +1,7 @@
 #' Automatic enhanced quality control for daily precipitation time series 
 
 #' @description The function determine the level (0, 1 or 2) of the enhanced quality control tests
+
 #' @param prec xts matrix of precipitation time series
 #' @param sts data.frame with metadata of the stations. A column "ID" (unique ID of stations) is required.
 #' @param lmn_yday numeric. value of the minimum number of days to be considered a complete year. The default value is 365 * 80 / 100 days

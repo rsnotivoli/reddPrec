@@ -98,35 +98,48 @@ stations <- stations[-which(duplicated(stations$ID)),]
 
 Te estimation of precipitation is used in all stages of the reconstruction process, and it uses environmental data as predictors. As we don't have available this information for each station's location, it can be extracted from raster data, but must create it first.
 
-In this case, we will use five predictors: 1) elevation, 2) latitude, 3) longitude, 4) distance to the coast (as a cost-distance function with elevation) and 5) TRI (Terrain Ruggedness Index).
+In this case, we will use seven predictors: 1) elevation, 2) latitude, 3) longitude, 4) the first four Pincipal Components of a collection of topographic variables.
 
 First, we use the [elevatr](https://github.com/jhollist/elevatr) package to derive a raster of elevations. Then, the [terra](https://rspatial.org/pkg/index.html) package will allow for calculating the required environmental predictors derived from elevations.
 
 ``` r
-library(elevatr)
-library(terra)
+# topographic variables
+
 dem <- get_elev_raster(data_daily, z = 5)
 dem <- rast(dem)
 dem <- crop(dem, spain)
 dem <- mask(dem, spain)
 dem[dem<0] <- 0
-dc <- costDist(dem)
-tr <- terrain(dem, v = 'TRI')
-```
 
-Now we create the latitude and longitude rasters from the stations' information.
-
-``` r
+asp <- terra::terrain(dem, v ='aspect')
+aspectcosine <- cos(asp)
+aspectsine <- sin(asp)
+dist2coast <- costDist(dem)
 lon <- rast(cbind(crds(dem),crds(dem)[,1]),type='xyz',crs='EPSG:4326')
 lat <- rast(cbind(crds(dem),crds(dem)[,2]),type='xyz',crs='EPSG:4326')
+roughness <- terra::terrain(dem, v ='roughness')
+slope <- terra::terrain(dem, v ='slope')
+tpi <- terra::terrain(dem, v ='TPI')
+tri <- terra::terrain(dem, v ='TRI')
+
+covs <- c(aspectcosine, aspectsine, dist2coast, dem, lon, lat, roughness, slope, tpi, tri)
+names(covs) <- c('aspectcosine', 'aspectsine', 'dist2coast', 
+                         'elevation', 'longitude', 'latitude', 'roughness', 
+                         'slope', 'tpi', 'tri')
+
+# pca of topo variables
+pca_cvs <- terra::princomp(covs[[-c(4:6)]])
+pca_cvs <- terra::predict(covs[[-c(4:6)]], pca_cvs, index=1:4)
+names(pca_cvs) <- c("pc1", "pc2", "pc3", "pc4")
+plot(pca_cvs)
 ```
 
-Lastly, we extract the values of distance to the coast and TRI to the stations
+Lastly, we extract the values of de PCs to the stations
 
 ``` r
 stations <- vect(stations, geom=c('lon','lat'),crs = 'EPSG:4326',keepgeom=TRUE)
-stations$dc <- terra::extract(dc, stations)[,2]
-stations$tr <- terra::extract(tr, stations)[,2]
+e <- terra::extract(pca_cvs, stations, ID=F)
+stations <- cbind(stations, e)
 stations <- as.data.frame(stations)
 ```
 
@@ -142,12 +155,12 @@ At his point, we have available the dataset with the original data.
 ``` r
 st <- vect(stations, geom = c('lon', 'lat'), crs = 'EPSG:4326', keepgeom = TRUE)
 st$ndata <- colSums(!is.na(obs_pr)) * 100 / nrow(obs_pr)
-stations$prec_acum <- colSums(obs_pr, na.rm = TRUE)
 dem_df <- as.data.frame(dem, xy = TRUE)
 colnames(dem_df)[3] <- "elevation"
 st_sf <- st_as_sf(st)
+st_sf$prec_acum <- colSums(obs_pr, na.rm = TRUE)
 
-map_plot <- ggplot() +
+ggplot() +
   geom_raster(data = dem_df, aes(x = x, y = y, fill = elevation)) +
   scale_fill_gradient(name = "Elevation (m)", low = "lightgreen", high = "darkgreen") +
   geom_sf(data = st_transform(st_sf, crs = st_crs(spain)), aes(size = prec_acum), color = "black", alpha = 0.7) +
@@ -156,15 +169,13 @@ map_plot <- ggplot() +
   coord_sf(crs = st_crs(spain)) +
   theme_minimal() +
   theme(legend.position = "right")
-
-print(map_plot)
 ```
 
 And the environmental pedictors
 
 ``` r
-env <- c(dem, lon, lat, dc, tr)
-names(env) <- c("alt","lon","lat","dc","tr")
+env <- c(dem, lon, lat, pca_cvs)
+names(env)[1:3] <- c("alt","lon","lat")
 plot(env)
 ```
 
@@ -173,7 +184,7 @@ plot(env)
 The quality control (QC) function allows for a customization of the thresholds applied to each criteria. In this case, we will flag and remove the observations based on the following conditionals:
 
 -   the coordinates (lon, lat) will be used as predictors
--   the 10 nearest observations to estimate precipitation
+-   the 15 nearest observations to estimate precipitation
 -   no maximum radius of searching nearest observations
 -   a type of model must be chosen from: *learner_glm* (Generalized Linear Model), *learner_rf* (Random Forest), *learner_svm* (Support Vector Machines), *learner_xgboost* (eXtreme Gradient Boosting)
 -   we will apply the 5 reference QC criteria: suspect value, suspect zero, suspect outlier, suspect wet day and suspect dry day.
@@ -190,7 +201,7 @@ qcdata <- qcPrec(prec = obs_pr,
                  crs = 'EPSG:4326', 
                  coords = c('lon','lat'),
                  coords_as_preds = TRUE, 
-                 neibs = 10, 
+                 neibs = 15, 
                  thres = NA,
                  qc = 'all', 
                  qc3 = 10, 
@@ -211,7 +222,7 @@ The result is a list of two elements:
     -   "4" (suspect wet): obs==0 & wet probability \> "qc4[1]" & estimate \> "qc4[2]"
     -   "5" (suspect dry): obs\>"qc5[3]" & dry probability \< "qc5[1]" & estimate \< "qc5[2]")
 
-In our example, the outliers (QC3) were the most flagged values (1.82%), followed by suspect values (QC1, 0.77%), suspect zeros (QC2, 0.17%), suspect wet (QC4, 0.09%) and suspect dry (QC5, 0.11%).
+In our example, the outliers (QC3) were the most flagged values (3.74%), followed by suspect zeros (QC2, 0.69%), suspect values (QC1, 0.33%), suspect wet (QC4, 0.16%) and suspect dry (QC5, 0.11%).
 
 ``` r
 allcodes <- as.numeric(as.matrix(qcdata$codes))
@@ -222,7 +233,7 @@ flagged
 ```         
 ## allcodes
 ##    1    2    3    4    5 
-## 0.77 0.17 1.82 0.09 0.11 
+## 0.33 0.69 3.74 0.16 0.11 
 ```
 
 ## Gap filling
@@ -244,13 +255,13 @@ The function returns a data.frame with different estimates for all days of every
 gf_res <- gapFilling(prec = qcdata$cleaned, 
                      sts = stations,
                      model_fun = learner_glm,
-                     dates = seq.Date(as.Date('2022-05-01'), 
-                                      as.Date('2022-05-31'),
+                     dates = seq.Date(as.Date('2025-03-01'), 
+                                      as.Date('2025-03-31'),
                                       by ='day'), 
                      stmethod = 'ratio', 
-                     ncpu = 12, 
+                     ncpu = 8, 
                      thres = NA, 
-                     neibs = 10,
+                     neibs = 15,
                      coords = c('lon','lat'),
                      crs = 'EPSG:4326',
                      coords_as_preds = TRUE,
@@ -262,7 +273,6 @@ Our example shows slight differences between **mod_pred** and **st_pred** since 
 We can compare, for example, the original data series and their reconstructions.
 
 ``` r
-
 library(ggplot2)
 library(patchwork)
 library(scales)
@@ -345,26 +355,28 @@ We will use reconstructed series for our example, 15 neighbors with no radius li
 
 The gridding process will take a long time depending on multiple factors: the grid resolution, the number of days, the number of neighbors, and the number of used CPUs, mainly. In our example, we will aggregate the grid at a coarser resolution and will reduce the time period to two days just to reduce the computing time. (This example takes about 3 minutes each day)
 
-A proper gridding of value should use the original observations when available and estimates for those days with missing data. You decide what estimates you will use from the output of gap fillling process. In this case, we will use the *mod_pred* estimate (the one without standardization). Be careful with this choice because sometimes, depending on the available data and other climatic factors, the standardization process could create unrealistic estimates.
+A proper gridding of value should use the original observations when available and estimates for those days with missing data. You decide what estimates you will use from the output of gap fillling process. In this case, we will use the *st_pred* estimate (the one with standardization). Be careful with this choice because sometimes, depending on the available data and other climatic factors, the standardization process could create unrealistic estimates.
+
+As gridding is a separate process from the previous steps, we can choose different covariables as predictors. In this case, we will only use *alt*, *lat* and *lon* since they yield more coherent spatial patterns. (Note that we select only the first 4 columns from stations [ID, lat, lon, lat]).
 
 ``` r
 recs <- gf_res$obs
-recs[is.na(recs)] <- gf_res$mod_pred[is.na(recs)]
+recs[is.na(recs)] <- gf_res$st_pred[is.na(recs)]
 rec <- data.frame(date = gf_res$date, ID = gf_res$ID, pred = recs)
 rec <- cast(rec, date~ID)
 rec <- rec[,-1]
 
-day1 <- as.numeric(rec[1,])
+day21 <- as.numeric(rec[21,])
 
-gridPcp(prec = day1,
+gridPcp(prec = day21,
         grid = env,
         dyncovars = NULL,
-        sts = stations,
+        sts = stations[,1:4],
         model_fun = learner_glm,
-        dates = as.Date('2022-05-01'),
+        dates = as.Date('2025-03-21'),
         ncpu = 8,
         thres = NA,
-        neibs = 10,
+        neibs = 15,
         coords = c('lon','lat'),
         crs = 'EPSG:4326',
         coords_as_preds = TRUE,
@@ -374,8 +386,22 @@ gridPcp(prec = day1,
 The function creates 2 folders in the working directory, one containing the daily grids of precipitation estimates and one containing the daily grids of uncertainties (errors of the model)
 
 ``` r
-pre <- terra::rast('./pred_grid_test/20220501.tif')
-err <- terra::rast('./err_grid_test/20220501.tif')
-
-plot(c(pre, err), breaks = c(0,seq(1,25,5)))
+pre <- terra::rast('./pred_grid_test/20250321.tif')
+title <- "Daily Precipitation 2025-03-21"
+vals <- c(-1, 0, 1, 2, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 110, 1000)
+  legnd <- paste(vals[1:21],vals[2:22],sep='-')
+  legnd[1] <- '0'
+  legnd[21] <- '>110'
+  
+  cols <- c('#ffffff', '#ffd576', '#ffe685', '#fff0b0',
+               '#fffecf', '#b2fdad', '#a2eda6', '#61cf87',
+               '#00c56a','#b2f1fe', '#72f0fe', '#1cdefe',
+               '#31c3fe','#6e90fe','#b77dff','#ca8eff',
+               '#dc9ae7','#f4a1f3','#fec1ff','#ffdcfe', '#e7e7e7')
+  
+  m <- cbind(vals[1:21],vals[2:22],1:21)
+  d <- classify(pre, m)
+  fadd <- function() plot(vect(spain),add=T)
+  plot(d,  type="interval", breaks = 1:22, col = cols, plg=list(legend=legnd),
+       main = title, fun = fadd)
 ```

@@ -54,7 +54,7 @@ This function creates a gridded precipitation dataset from a station-based datas
 All the rasters provided in "grid" and "dyncovars" must have the same spatial characteristics (resolution, crs, extent, etc.).
 The function estimates precipitation based on the nearest observations ("sts" and "prec") using as covariates the predictors contained in "grid" and "dyncovars".
 Predictors of "grid" are used for all days while those on "dyncovars" are selected depending on the day.
-For instance, to model the first day the algorithm considers all rasters in "grid" and only those corresponding to the first day of each variable.#' @export
+For instance, to model the first day the algorithm considers all rasters in "grid" and only those corresponding to the first day of each variable.
 }
 \examples{
 \dontrun{

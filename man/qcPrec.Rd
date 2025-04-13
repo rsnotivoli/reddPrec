@@ -7,6 +7,7 @@
 qcPrec(
   prec,
   sts,
+  model_fun = learner_glm,
   crs,
   coords,
   coords_as_preds = TRUE,
@@ -20,9 +21,11 @@ qcPrec(
 )
 }
 \arguments{
-\item{prec}{matrix or data.frame containing the original precipitation data. Each column represents one station. The names of columns have to be names of the stations.}
+\item{prec}{matrix containing the original precipitation data. Each column represents one station. The names of columns have to be names of the stations.}
 
-\item{sts}{matrix or data.frame. A column "ID" (unique ID of stations) is required. The rest of the columns (all of them) will act as predictors of the model.}
+\item{sts}{data.frame. A column "ID" (unique ID of stations) is required. The rest of the columns (all of them) will act as predictors of the model.}
+
+\item{model_fun}{function. A function that integrates the statistical hybrid model (classification and regression). The default is learner_glm, which is the original model. Other models are also available (learner_rf and learner_xgboost). Users can create their functions with different models as well.}
 
 \item{crs}{character. Coordinates system in EPSG format (e.g.: "EPSG:4326").}
 

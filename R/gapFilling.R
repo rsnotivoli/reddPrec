@@ -3,6 +3,7 @@
 #' @description This function uses the neighboring observations to estimate new precipitation values in those days and locations where no records exist.
 #' @param prec matrix containing the original (cleaned) precipitation data. Each column represents one station. The names of columns must coincide with the names of the stations.
 #' @param sts data.frame. A column "ID" (unique ID of stations) is required. The rest of the columns (all of them) will act as predictors of the model.
+#' @param model_fun function. A function that integrates the statistical hybrid model (classification and regression). The default is learner_glm, which is the original model. Other models are also available (learner_rf and learner_xgboost). Users can create their functions with different models as well.
 #' @param dates vector of class "Date" with all days of observations (yyyy-mm-dd).
 #' @param crs character. Coordinates system in EPSG format (e.g.: "EPSG:4326").
 #' @param coords vector of two character elements. Names of the fields in "sts" containing longitude and latitude.
@@ -14,7 +15,8 @@
 #' @param ncpu number of processor cores used to parallel computing.
 #' @export
 #' @importFrom foreach foreach %dopar%
-#' @importFrom reshape melt cast
+#' @importFrom reshape2 melt
+#' @importFrom reshape cast
 #' @importFrom doParallel registerDoParallel
 #' @details
 #' After the gap filling, "stmethod" allows for an standardization of the predictions based on the observations.
@@ -43,7 +45,7 @@
 #'}
 #' 
 
-gapFilling <- function(prec, sts, dates, stmethod = NULL, thres = NA, neibs = 10,
+gapFilling <- function(prec, sts, model_fun = learner_glm, dates, stmethod = NULL, thres = NA, neibs = 10,
                        coords, crs, coords_as_preds = TRUE, window, ncpu = 2){
 
   if(is.null(colnames(prec))){
@@ -65,7 +67,8 @@ gapFilling <- function(prec, sts, dates, stmethod = NULL, thres = NA, neibs = 10
   j <- NULL
   a <- foreach(j = 1:nrow(prec), .combine=rbind, .export=c("fillData")) %dopar% {
     fillData(x = prec[j,], 
-            sts = sts[,-which(colnames(sts)=='ID')], 
+            sts = sts[,-which(colnames(sts)=='ID')],
+            model_fun = model_fun,
             neibs = neibs,
             coords = coords,
             crs = crs,
@@ -81,7 +84,7 @@ gapFilling <- function(prec, sts, dates, stmethod = NULL, thres = NA, neibs = 10
   message(paste0('[',Sys.time(),'] -', " Standardizing final data series"))
   
   bb <- a[,c('date','ID','mod_pred')]
-  prec_pred <- suppressMessages(cast(bb,date~ID)[,-1])
+  prec_pred <- suppressMessages(reshape::cast(bb,date~ID)[,-1])
   prec_pred <- prec_pred[,match(colnames(prec),colnames(prec_pred))]
   
   pred <- foreach(j = 1:ncol(prec_pred), .combine=cbind, .export=c("standardization","stand_qq")) %dopar% {
@@ -94,7 +97,7 @@ gapFilling <- function(prec, sts, dates, stmethod = NULL, thres = NA, neibs = 10
   }
   colnames(pred) <- colnames(prec_pred)
   pred <- data.frame(date = dates, pred, check.names = FALSE)
-  pred <- melt(pred, id.vars = 'date')
+  pred <- reshape2::melt(pred, id.vars = 'date')
   pred <- pred[order(pred$date),]
   
   a <- data.frame(a[,1:6], st_pred = pred$value, a[,7:8])

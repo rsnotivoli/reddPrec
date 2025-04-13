@@ -7,14 +7,17 @@
 gridPcp(
   prec,
   grid,
+  dyncovars = NULL,
   sts,
+  model_fun,
   dates,
   ncpu,
   thres,
   neibs,
   coords,
   crs,
-  coords_as_preds
+  coords_as_preds,
+  dir_name = NA
 )
 }
 \arguments{
@@ -22,7 +25,11 @@ gridPcp(
 
 \item{grid}{SpatRaster. Collection of rasters representing each one of the predictors.}
 
+\item{dyncovars}{SpatRasterDataset. Collection of variables acting as dynamic predictors (changing each day). Each dataset inside the sds object (corresponding to each variable) must have the same rasters as number of days to grid. See Details.}
+
 \item{sts}{matrix or data.frame. A column "ID" (unique ID of stations) is required. The rest of the columns (all of them) will act as predictors of the model.}
+
+\item{model_fun}{function. A function that integrates the statistical hybrid model (classification and regression). The default is learner_glm, which is the original model. Other models are also available (learner_rf and learner_xgboost). Users can create their functions with different models as well.}
 
 \item{dates}{vector of class "Date" with all days of observations (yyyy-mm-dd).}
 
@@ -37,12 +44,21 @@ gridPcp(
 \item{crs}{character. Coordinates system in EPSG format (e.g.: "EPSG:4326").}
 
 \item{coords_as_preds}{logical. If TRUE (default), "coords" are also taken as predictors.}
+
+\item{dir_name}{character. Name of the of the folder in which the data will be saved. Default NA uses the original names.}
 }
 \description{
 This function creates a gridded precipitation dataset from a station-based dataset.
 }
+\details{
+All the rasters provided in "grid" and "dyncovars" must have the same spatial characteristics (resolution, crs, extent, etc.).
+The function estimates precipitation based on the nearest observations ("sts" and "prec") using as covariates the predictors contained in "grid" and "dyncovars".
+Predictors of "grid" are used for all days while those on "dyncovars" are selected depending on the day.
+For instance, to model the first day the algorithm considers all rasters in "grid" and only those corresponding to the first day of each variable.
+}
 \examples{
 \dontrun{
+# fixed covariates (elevation, latitude, longitude)
 alt <- terra::rast(volcano, crs = 'EPSG:4326')
 terra::ext(alt) <- c(-1,3,38,42)
 lon <- terra::rast(cbind(terra::crds(alt),terra::crds(alt)[,1]),type='xyz',crs='EPSG:4326')
@@ -51,15 +67,41 @@ dcoast <- terra::costDist(alt,target=min(terra::values(alt)))/1000
 grid <- c(alt, lon, lat, dcoast)
 names(grid) <- c('alt', 'lon', 'lat', 'dcoast')
 
-prec <- round(matrix(rnorm(2*25, mean = 1.2, sd = 4), 2, 25), 1)+1
+# Dynamic covariates (Variable 1, Variable 2, Variable 3)
+foo <- alt
+terra::values(foo) <- runif(length(terra::values(alt)))
+dyncovars1 <- rep(foo, 7)
+names(dyncovars1) <- paste('dynvar1.day',1:terra::nlyr(dyncovars1), 
+                      sep = "_") # not use blank space!
+dyncovars2 <- dyncovars1*0.0234
+names(dyncovars2) <- paste('dynvar2.day',1:terra::nlyr(dyncovars2), 
+                      sep = "_") # not use blank space!
+dyncovars3 <- dyncovars1*10502
+names(dyncovars3) <- paste('dynvar3.day',1:terra::nlyr(dyncovars3), 
+                      sep = "_") # not use blank space!
+dyncovars <- terra::sds(dyncovars1, dyncovars2, dyncovars3)
+ 
+# precipitation and stations generation
+set.seed(123)
+prec <- round(matrix(rnorm(7*25, mean = 1.2, sd = 4), 7, 25), 1)+1
 prec[prec<0] <- 0
 colnames(prec) <- paste0('sts_',1:25)
 sts <- data.frame(ID = paste0('sts_',1:25), as.data.frame(terra::spatSample(grid, 25)))
-gridPcp(prec, grid, sts, 
-        dates = seq.Date(as.Date('2023-04-01'),as.Date('2023-04-02'),by='day'),
-        thres = NA, coords = c('lon','lat'),coords_as_preds = TRUE, 
-        crs = 'EPSG:4326', neibs = 10, ncpu = 2)
+
+
+gridPcp(prec = prec, 
+        grid = grid, 
+        sts = sts, 
+        model_fun = learner_glm, 
+        dates = seq.Date(as.Date('2023-04-01'),as.Date('2023-04-07'),by='day'), 
+        ncpu = 4, 
+        thres = NA, 
+        neibs = 15,
+        coords = c('lon','lat'), 
+        crs = 'EPSG:4326', 
+        coords_as_preds = TRUE)
 
 r <- terra::rast(c('./pred/20230401.tif','./err/20230401.tif'))
+terra::plot(r)
 }
 }

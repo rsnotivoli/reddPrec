@@ -1,15 +1,10 @@
 citHeader("To cite reddPrec in publications, please use:")
 
-
-citEntry(entry = "Article",
-    title = "An R package for daily precipitation climate series reconstruction",
-    author = personList(as.person("Roberto Serrano-Notivoli"),
-        as.person("Martin de Luis"),as.person("Santiago Begueria")),
-    journal = "Environmental Modelling and Software",
-    year = 2017,
-    volume = 89,
-    url = "http://dx.doi.org/10.1016/j.envsoft.2016.11.005",
-    textVersion  = paste("Serrano-Notivoli, R., de Luis, M., Begueria, S. (2017).",
-        "An R package for daily precipitation climate series reconstruction",
-        "Environmental Modelling and Software, 89:190--195",
-        "URL http://dx.doi.org/10.1016/j.envsoft.2016.11.005"))
+bibentry(bibtype = "Article",
+         title = "An R package for daily precipitation climate series reconstruction",
+         author = c(person(c("Roberto"), "Serrano-Notivoli"),
+                    person(c("Martin"), "de Luis"),
+                    person(c("Santiago"), "Begueria")),
+         journal = "Environmental Modelling and Software",
+         year = "2017", volume = 89,
+         doi = "10.1016/j.envsoft.2016.11.005")

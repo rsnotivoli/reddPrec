@@ -1,11 +1,15 @@
 #' Automatic enhanced quality control for daily precipitation time series 
 
 #' @description The function determine the level (0, 1 or 2) of the enhanced quality control tests
-#' @param xts_obj xts matrix of precipitation time series
+
+#' @param prec xts matrix of precipitation time series
+#' @param sts data.frame with metadata of the stations. A column "ID" (unique ID of stations) is required.
+#' @param lmn_yday numeric. value of the minimum number of days to be considered a complete year. The default value is 365 * 80 / 100 days
 #' @param ths_trc list. List of parameters to define in which level would be the daily precipitation for truncation.
-#' @param ths_wcc list. List of parameters to define in which level would be the daily precipitation for small gaps.
-#' @param ths_trc list. List of parameters to define in which level would be the daily precipitation for weekly cycle.
+#' @param ths_sgs list. List of parameters to define in which level would be the daily precipitation for small gaps.
+#' @param ths_wcc list. List of parameters to define in which level would be the daily precipitation for weekly cycle.
 #' @param ths_prp list. List of parameters to define in which level would be the daily precipitation for precision and rounding patterns.
+#' @param ncpu integer. number of CPU threads to use for parallel computing.
 #' @export
 #' @importFrom foreach foreach %dopar%
 #' @importFrom doParallel registerDoParallel
@@ -30,6 +34,7 @@
 #' @references Huerta, A., Serrano-Notivoli, R., & Brönnimann, S. (2024). SC-PREC4SA: A serially complete daily precipitation dataset for South America. https://doi.org/10.31223/X57D8R
 
 eqc_Ts <- function(prec,
+                   sts,
                    lmn_yday = 365 * 80 / 100,
                    ths_trc = list(lv0 = c("n_years" = 2), lv1to2 = c("n_years_l" = 3, "n_years_h" = 5)),
                    ths_sgs = list(lv0 = c("percent" = 0), lv1to2 = c("percent" = 20)), 

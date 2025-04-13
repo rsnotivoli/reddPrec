@@ -2,7 +2,8 @@
 #' 
 #' @description This function calculates precipitation values of a single day.
 #' @param x vector of observations in a single day.
-#' @param sts matrix or data.frame containing the coordinates and predictors..
+#' @param sts matrix or data.frame containing the coordinates and predictors.
+#' @param model_fun function. A function that integrates the statistical hybrid model (classification and regression).
 #' @param crs character. Coordinates system in EPSG format (e.g.: "EPSG:4326").
 #' @param coords vector of two character elements. Names of the fields in "sts" containing longitude and latitude.
 #' @param coords_as_preds logical. If TRUE (default), "coords" are also taken as predictors.
@@ -12,13 +13,14 @@
 #' @importFrom stats as.formula glm binomial predict quantile quasibinomial
 #' @noRd
 
-  fillData <-function(x, sts, neibs, coords, crs, coords_as_preds = TRUE, thres){
+  fillData <-function(x, sts, model_fun, neibs, coords, crs, coords_as_preds = TRUE, thres){
     
     n <- names(sts)
     if(!coords_as_preds) n <- n[-match(coords,names(sts))]
     if(neibs<length(n)*2) 
       stop('The number of neighbors must be at least the double of predictors')
-    covars <- paste(n, collapse='+') # predictors
+    # covars <- paste(n, collapse='+') # predictors
+    covars <- n
     
         #set output
     res <- matrix(NA, ncol = 6, nrow = length(x))
@@ -39,7 +41,7 @@
           
           #subset dataset based on available data
           sub <- data.frame(sts,val = x)
-          sub <- vect(sub, geom = coords, crs = crs, keepgeom = TRUE)
+          sub <- terra::vect(sub, geom = coords, crs = crs, keepgeom = TRUE)
           
           ###################
           # evaluating data
@@ -65,38 +67,13 @@
               } else if (sum(diff(ref$val))==0){
                 res[h,2:5] <- c(1,ref$val[1],ref$val[1],0)
               } else{
+
+                out <- model_fun(ref = ref, can = can, covars = covars)
+                out <- round(out, 2)
                 
-                # probability of ocurrence prediction
-                rr <- as.data.frame(ref)
-                rr$val[rr$val > 0] <- 1
-                
-                
-                f <- as.formula(paste0('val ~ ',covars))
-                fmtb <- suppressWarnings(
-                  glm(f,family = binomial(),data = rr)
-                )
-                
-                pb <- round(predict(fmtb, newdata = as.data.frame(can), 
-                                    type = "response"),2)
-                
-                #amount prediction
-                #rescaling
-                rr <- as.data.frame(ref)
-                MINc <- min(rr$val) - (as.numeric(quantile(rr$val, 0.50)) - as.numeric(quantile(rr$val, 0.25)))
-                MINc <- ifelse(MINc<0,0,MINc)
-                MAXc <- max(rr$val) + (as.numeric(quantile(rr$val, 0.75))-as.numeric(quantile(rr$val, 0.50)))
-                RANGE <- as.numeric(MAXc - MINc)
-                rr$val <- (rr$val - MINc) / RANGE
-                
-                fmt <- suppressWarnings(
-                  glm(f,family = quasibinomial(),data = rr)
-                )
-                p <- predict(fmt, newdata = as.data.frame(can),type = "response")
-                p <- round((p * RANGE) + MINc, 2)
-                
-                # error calculation 
-                e <- sqrt(sum((rr$val - predict(fmt, type = 'response')) ^ 2)/(length(rr$val) - length(n)))
-                e <- round((e * RANGE) + MINc, 2)
+                pb <- out[1]
+                p <- out[2]
+                e <- out[3]
                 
                 #evaluating estimate
                 res[h, 2] <- pb

@@ -10,6 +10,7 @@
 #' This function encapsulates two types of models: classification and regression, and its output is a single numeric vector of three elements: probability of wet day, amount of wet day, and uncertainty of the amount of wet day.
 #' To use this function, the randomForest package should have been installed previously
 #' @references Huerta, A., Serrano-Notivoli, R., & Brönnimann, S. (2024). SC-PREC4SA: A serially complete daily precipitation dataset for South America. https://doi.org/10.31223/X57D8R
+#' @export
 #' @importFrom randomForest randomForest
 #' @examples
 #' \dontrun{

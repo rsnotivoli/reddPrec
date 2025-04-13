@@ -9,6 +9,7 @@
 #' The core functions can handle whatever condition that avoids the execution of this function. Therefore, there is no need to test different situations on the data (empty values, among others). However, users who want to build their functions should test first before being passed as an argument in the core functions (you can check the other models (learner) functions available in the package).
 #' This function encapsulates two types of models: classification and regression, and its output is a single numeric vector of three elements: probability of wet day, amount of wet day, and uncertainty of the amount of wet day.
 #' @references Serrano-Notivoli, R., Beguería, S., Saz, M. Á., Longares, L. A., & de Luis, M. (2017). SPREAD: a high-resolution daily gridded precipitation dataset for Spain–an extreme events frequency and intensity overview. Earth System Science Data, 9(2), 721-738.
+#' @export
 #' @examples
 #' \dontrun{
 #' set.seed(123)

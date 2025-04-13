@@ -3,6 +3,7 @@
 #' @description The function get the results of the small gaps test
 #' @param xts_obj xts of a single time series
 #' @param lmn_yday numeric value of the minimum number of days to be considered a complete year. The default value is 365 * 80 / 100 days
+#' @noRd
 #' @references Hunziker, S., Gubler, S., Calle, J., Moreno, I., Andrade, M., Velarde, F., ... & Brönnimann, S. (2017). Identifying, attributing, and overcoming common data quality issues of manned station observations. https://doi.org/10.1002/joc.5037
 #' @references Huerta, A., Serrano-Notivoli, R., & Brönnimann, S. (2024). SC-PREC4SA: A serially complete daily precipitation dataset for South America. https://doi.org/10.31223/X57D8R
 #' 

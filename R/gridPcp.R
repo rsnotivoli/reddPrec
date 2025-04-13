@@ -18,7 +18,8 @@
 #' All the rasters provided in "grid" and "dyncovars" must have the same spatial characteristics (resolution, crs, extent, etc.).
 #' The function estimates precipitation based on the nearest observations ("sts" and "prec") using as covariates the predictors contained in "grid" and "dyncovars". 
 #' Predictors of "grid" are used for all days while those on "dyncovars" are selected depending on the day. 
-#' For instance, to model the first day the algorithm considers all rasters in "grid" and only those corresponding to the first day of each variable.#' @export
+#' For instance, to model the first day the algorithm considers all rasters in "grid" and only those corresponding to the first day of each variable.
+#' @export
 #' @importFrom doParallel registerDoParallel
 #' @examples
 #' \dontrun{
@@ -71,11 +72,6 @@
 
 gridPcp <- function (prec, grid, dyncovars = NULL, sts, model_fun, dates, ncpu, thres, neibs,
                      coords, crs, coords_as_preds, dir_name = NA){
-  
-  # checks
-  m <- match(colnames(prec), sts$ID)
-  prec <- prec[,m]
-  
   
   registerDoParallel(cores=ncpu)
   

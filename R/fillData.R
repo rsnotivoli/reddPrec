@@ -2,7 +2,7 @@
 #' 
 #' @description This function calculates precipitation values of a single day.
 #' @param x vector of observations in a single day.
-#' @param sts matrix or data.frame containing the coordinates and predictors..
+#' @param sts matrix or data.frame containing the coordinates and predictors.
 #' @param model_fun function. A function that integrates the statistical hybrid model (classification and regression).
 #' @param crs character. Coordinates system in EPSG format (e.g.: "EPSG:4326").
 #' @param coords vector of two character elements. Names of the fields in "sts" containing longitude and latitude.

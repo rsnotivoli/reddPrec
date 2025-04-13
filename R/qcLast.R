@@ -28,7 +28,8 @@ qcLast <- function(x, y, sts, model_fun, neibs, coords, crs, coords_as_preds = T
   
   n <- names(sts)
   if(!coords_as_preds) n <- n[-match(coords,names(sts))]
-  covars <- paste(n, collapse='+') # predictors
+  # covars <- paste(n, collapse='+') # predictors
+  covars <- n
   
   if(length(qc)==1){
     if(qc == "all") qc <- as.character(paste0(1:5))

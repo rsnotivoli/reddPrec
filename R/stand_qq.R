@@ -8,9 +8,13 @@
 #' @noRd
 
 stand_qq <- function(o, s){
+  
   w0 <- which(s == 0)
   ww <- which((o + s) != 0)
-  if(length(ww) < 5) return(s) else{
+  sww <- var(s[ww])
+  oww <- var(o[ww])
+  
+  if (length(ww) < 5 | sww == 0 | oww == 0) return(s) else {
     qm.fit <- fitQmap(o[ww],
                       s[ww],
                       method = "QUANT",
@@ -19,13 +23,20 @@ stand_qq <- function(o, s){
     # wet.day was not set before (creating fake automatic wet.day)
     # wet.day = 0 = FALSE same    
     w <- which(!is.na(s))
-    if(length(w) < length(s)){
+    
+    if (length(w) < length(s)) {
+      
       xx <- doQmap(s[w], qm.fit)
       s[w] <- xx
-    } else{
+      
+    } else {
+      
       s <- doQmap(s, qm.fit)
+      
     }
+    
     s[w0] <- 0
-    return(round(s,2))
+    
+    return(round(s, 2))
     }
 }

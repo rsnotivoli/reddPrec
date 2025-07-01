@@ -8,9 +8,12 @@
 #' @noRd
 
 stand_qq <- function(o, s){
+  
+  suppressMessages(require(qmap))
+  
   w0 <- which(s == 0)
   ww <- which((o + s) != 0)
-  if(length(ww) < 5) return(s) else{
+  if (length(ww) < 5 | sww == 0 | oww == 0) return(s) else {
     qm.fit <- fitQmap(o[ww],
                       s[ww],
                       method = "QUANT",

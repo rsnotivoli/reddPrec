@@ -1,6 +1,6 @@
 Package: reddPrec
 Title: Reconstruction of Daily Data - Precipitation
-Version: 3.0.0
+Version: 3.0.1
 Authors@R: 
     c(person(given = "Roberto", 
             family = "Serrano-Notivoli",

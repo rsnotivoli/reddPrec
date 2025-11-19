@@ -1,6 +1,6 @@
 Package: reddPrec
 Title: Reconstruction of Daily Data - Precipitation
-Version: 3.0.1
+Version: 3.0.2
 Authors@R: 
     c(person(given = "Roberto", 
             family = "Serrano-Notivoli",
@@ -23,6 +23,6 @@ Description: Applies quality control to daily precipitation observations;
     creates gridded datasets of daily precipitation.
 License: GPL-3
 Encoding: UTF-8
-Imports: terra, stats, foreach, doParallel, reshape, qmap, BreakPoints, Kendall, car, geosphere, gridExtra, lattice,  pracma, xts, zoo, e1071, neuralnet, randomForest, reshape2, xgboost
+Imports: terra, stats, foreach, doParallel, reshape, qmap, BreakPoints, trend, car, geosphere, gridExtra, lattice,  pracma, xts, zoo, e1071, neuralnet, randomForest, reshape2, xgboost
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2

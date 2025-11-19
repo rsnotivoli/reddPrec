@@ -18,7 +18,7 @@
 #' @importFrom xts xts apply.yearly
 #' @importFrom zoo coredata rollapply
 #' @importFrom geosphere distHaversine
-#' @importFrom Kendall MannKendall
+#' @importFrom trend mk.test
 #' @importFrom pracma detrend
 #' @importFrom car durbinWatsonTest
 #' @importFrom BreakPoints pettit man.whi stu SNHT Buishand_R

@@ -2,11 +2,12 @@ hmg_cleaning_trend_ar1 <- function(time_serie, p_value = 0.05){
   
   
   # Apply detrending
-  sample_value <- as.numeric(time_serie)
-  mk_res <- Kendall::MannKendall(time_serie)
+  sample_value <- as.numeric(sample_value)
+  mk_res <- trend::mk.test(sample_value)
+  # mk_res <- Kendall::MannKendall(sample_value)
   
   # removing trend if mk_res$sl < p_value
-  if (as.numeric(mk_res$sl) < p_value) {
+  if (as.numeric(mk_res$p.value) < p_value) {
     
     res <- pracma::detrend(sample_value, tt = "linear")
     zoo::coredata(time_serie) <- res

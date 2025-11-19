@@ -5,6 +5,7 @@
 #' @param o vector of observations
 #' @param s vector of predictions
 #' @importFrom qmap fitQmap doQmap
+#' @importFrom stats var
 #' @noRd
 
 stand_qq <- function(o, s){
